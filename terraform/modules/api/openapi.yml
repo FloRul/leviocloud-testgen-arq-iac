@@ -17,7 +17,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Empty"
       x-amazon-apigateway-integration:
-        type: mock
+        type: "mock"
         requestTemplates:
           application/json: '{"statusCode": 200}'
         passthroughBehavior: "never"
@@ -46,6 +46,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Empty"
+      x-amazon-apigateway-integration:
+        type: "mock"
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
   /delete:
     delete:
       responses:
@@ -59,6 +71,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Empty"
+      x-amazon-apigateway-integration:
+        type: "mock"
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
     options:
       responses:
         "200":
@@ -77,6 +101,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Empty"
+      x-amazon-apigateway-integration:
+        type: "mock"
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
   /upload:
     post:
       responses:
@@ -96,6 +132,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Empty"
+      x-amazon-apigateway-integration:
+        type: "mock"
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
     options:
       responses:
         "200":
@@ -114,6 +162,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Empty"
+      x-amazon-apigateway-integration:
+        type: "mock"
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
   /list-files:
     get:
       responses:
@@ -127,6 +187,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Empty"
+      x-amazon-apigateway-integration:
+        type: "mock"
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
     options:
       responses:
         "200":
@@ -145,6 +217,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Empty"
+      x-amazon-apigateway-integration:
+        type: "mock"
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
   /download:
     get:
       responses:
@@ -158,6 +242,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Empty"
+      x-amazon-apigateway-integration:
+        type: "mock"
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
     options:
       responses:
         "200":
@@ -176,6 +272,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Empty"
+      x-amazon-apigateway-integration:
+        type: "mock"
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
 components:
   schemas:
     Empty:
