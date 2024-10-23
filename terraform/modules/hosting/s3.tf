@@ -13,12 +13,7 @@
 
   # Enable versioning
   versioning = {
-    enabled = true
-  }
-
-  # Website configuration
-  website = {
-    index_document = "index.html"
+    enabled = false
   }
 
   # CORS configuration - restricted to your domain
