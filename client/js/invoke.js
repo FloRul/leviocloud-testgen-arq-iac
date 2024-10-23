@@ -1,5 +1,3 @@
-import { getApiUrl, loadConfig } from "./config.js";
-
 const loadingDiv = document.getElementById("loading");
 
 const showSpinner = () => {

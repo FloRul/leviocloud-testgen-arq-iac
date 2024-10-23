@@ -1,7 +1,7 @@
 // config.js
 let API_URL;
 
-export async function loadConfig() {
+async function loadConfig() {
   try {
     const response = await fetch("config.json");
     if (!response.ok) throw new Error("Could not load config");
@@ -13,6 +13,6 @@ export async function loadConfig() {
   }
 }
 
-export function getApiUrl() {
+function getApiUrl() {
   return API_URL;
 }

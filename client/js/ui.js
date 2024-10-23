@@ -1,11 +1,3 @@
-import { loadConfig } from "./config.js";
-import {
-  deleteFiles,
-  displayFiles,
-  downloadFile,
-  uploadFiles,
-} from "./fileHandler.js";
-
 const fileInput = document.getElementById("sourceCodeFile");
 const searchInput = document.getElementById("searchFileInput");
 const searchResponseInput = document.getElementById("searchResponseFileInput");
