@@ -53,7 +53,7 @@ async function displayFiles(
   });
 }
 
-export async function uploadFiles(files, type) {
+async function uploadFiles(files, type) {
   showSpinner();
   try {
     const body = JSON.stringify({
@@ -90,7 +90,7 @@ async function readFileAsBase64(file) {
   });
 }
 
-export async function downloadFile(fileName) {
+async function downloadFile(fileName) {
   const apiUrl = `${getApiUrl}/download?fileName=${fileName}`;
   showSpinner();
   try {
@@ -125,7 +125,7 @@ export async function downloadFile(fileName) {
   hideSpinner();
 }
 
-export async function deleteFiles(files, type) {
+async function deleteFiles(files, type) {
   showSpinner();
   try {
     const body = JSON.stringify({
