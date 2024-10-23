@@ -13,7 +13,7 @@
 
   # Enable versioning
   versioning = {
-    enabled = true
+    enabled = false
   }
 
   # Website configuration
