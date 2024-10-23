@@ -40,3 +40,16 @@ module "hosting" {
   environment  = var.environment
   project_name = local.project_name
 }
+
+module "storage" {
+  source       = "./modules/storage"
+  environment  = var.environment
+  project_name = local.project_name
+}
+
+module "file_processing" {
+  source = "./modules/file_processing"
+
+  environment  = var.environment
+  project_name = local.project_name
+}
