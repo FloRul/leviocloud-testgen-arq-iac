@@ -1,15 +1,19 @@
 ﻿terraform {
+  backend "s3" {
+    bucket = "leviocloud-testgen-arq-iac-tfstate"
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = ">= 5.72.1"
     }
-
   }
 }
 
+
+
 provider "aws" {
-  region  = "ca-central-1"
+  region = "ca-central-1"
   default_tags {
     tags = {
       Environment = var.environment
