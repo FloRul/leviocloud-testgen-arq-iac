@@ -16,11 +16,6 @@
     enabled = false
   }
 
-  # Website configuration
-  website = {
-    index_document = "index.html"
-  }
-
   # CORS configuration - restricted to your domain
   cors_rule = [
     {
