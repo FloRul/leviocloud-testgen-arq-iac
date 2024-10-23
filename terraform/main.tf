@@ -1,6 +1,8 @@
 ﻿terraform {
   backend "s3" {
     bucket = "leviocloud-testgen-arq-iac-tfstate"
+    key    = "terraform.tfstate"
+    region = "ca-central-1"
   }
   required_providers {
     aws = {
