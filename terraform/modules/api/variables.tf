@@ -9,13 +9,3 @@ variable "project_name" {
   type        = string
   nullable    = false
 }
-
-variable "dynamo_watch_table" {
-  description = "The name of the DynamoDB table."
-  type = object({
-    name       = string
-    arn        = string
-    stream_arn = string
-  })
-  nullable = false
-}

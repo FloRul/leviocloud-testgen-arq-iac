@@ -1,35 +1,22 @@
 ﻿locals {
-  api_name = "watches-api"
+  api_name = "api"
 }
 #checkov:skip=CKV_AWS_225: "AWS API Gateway method settings do not enable caching" - No need for caching
 #checkov:skip=CKV2_AWS_51: "Ensure AWS API Gateway endpoints uses client certificate authentication" - No need for client certificate authentication
 data "aws_region" "current" {}
 resource "aws_api_gateway_rest_api" "vigie_api" {
-  depends_on  = [aws_cognito_user_pool.user_pool]
   name        = "${var.project_name}-${var.environment}-${local.api_name}"
   description = "Watches API for ${var.project_name}-${var.environment}, mostly CRUD operations"
 
-  body = templatefile("${path.module}/vigie_api.yaml", {
-    lambda_invoke_arn      = module.lambda_router.lambda_function_arn
-    cognito_user_pool_arns = jsonencode([aws_cognito_user_pool.user_pool.arn])
-    aws_region             = data.aws_region.current.name
-  })
+  body = templatefile("${path.module}/api.yml", {})
 
   endpoint_configuration {
-    types = ["REGIONAL"]
+    types = ["EDGE"]
   }
+
   lifecycle {
     create_before_destroy = true
   }
-}
-
-resource "aws_lambda_permission" "apigw" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = module.lambda_router.lambda_function_name
-  principal     = "apigateway.amazonaws.com"
-
-  source_arn = "${aws_api_gateway_rest_api.vigie_api.execution_arn}/*/*"
 }
 
 resource "aws_api_gateway_deployment" "this" {
@@ -50,10 +37,10 @@ resource "aws_api_gateway_deployment" "this" {
 # Logging
 #checkov:skip=CKV_AWS_158: "Ensure CloudWatch Log Groups are encrypted with KMS by default" - No need for encryption
 resource "aws_cloudwatch_log_group" "api_gateway" {
-
   name              = "apigateway-${var.project_name}-${var.environment}-${local.api_name}"
   retention_in_days = 365
 }
+
 resource "aws_iam_role" "cloudwatch" {
   name = "${var.project_name}-${var.environment}-${local.api_name}-cloudwatch-role"
 
