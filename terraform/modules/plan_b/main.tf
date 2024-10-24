@@ -69,6 +69,7 @@ module "lambda_function" {
     POWERTOOLS_SERVICE_NAME      = "FileProcessing"
     POWERTOOLS_METRICS_NAMESPACE = "FileProcessing"
     LOG_LEVEL                    = "INFO"
+    SNS_TOPIC_ARN                = aws_sns_topic.bucket_notifications.arn
   }
 
   attach_policy_statements = true
@@ -118,6 +119,13 @@ module "lambda_function" {
       ]
       resources = ["*"]
     }
+    sns = {
+      effect = "Allow"
+      actions = [
+        "sns:Publish"
+      ]
+      resources = [aws_sns_topic.bucket_notifications.arn]
+    }
   }
 
   allowed_triggers = {
@@ -138,46 +146,4 @@ resource "aws_s3_bucket_notification" "input_notification" {
     events              = ["s3:ObjectCreated:*"]
   }
 
-}
-
-resource "aws_sns_topic" "bucket_notifications" {
-  depends_on = [module.s3_bucket_output]
-  #checkov:skip=CKV_AWS_26: "Ensure all data stored in the SNS topic is encrypted" - No need for encryption
-  name = "${var.project_name}-${var.environment}-processor-output-topic"
-}
-
-resource "aws_sns_topic_policy" "default" {
-  arn = aws_sns_topic.bucket_notifications.arn
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Id      = "default"
-    Statement = [
-      {
-        Sid    = "Allow S3 to publish to SNS"
-        Effect = "Allow"
-        Principal = {
-          Service = "s3.amazonaws.com"
-        }
-        Action   = "SNS:Publish"
-        Resource = aws_sns_topic.bucket_notifications.arn
-        Condition = {
-          ArnLike = {
-            "aws:SourceArn" = module.s3_bucket_output.s3_bucket_arn
-          }
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = module.s3_bucket_output.s3_bucket_id
-
-  topic {
-    topic_arn     = aws_sns_topic.bucket_notifications.arn
-    events        = ["s3:ObjectCreated:*"]
-  }
-
-  depends_on = [aws_sns_topic_policy.default]
 }

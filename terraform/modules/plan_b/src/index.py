@@ -21,6 +21,7 @@ metrics = Metrics()
 # Get clients using utility function
 s3_client = boto3.client("s3")
 bedrock_client = boto3.client("bedrock-runtime")
+sns_client = boto3.client("sns")
 
 
 # Configuration
@@ -37,6 +38,53 @@ class Config:
     MAX_BEDROCK_CALL_AMOUNT = 7
     INPUT_BUCKET = os.environ["INPUT_BUCKET"]
     OUTPUT_BUCKET = os.environ["OUTPUT_BUCKET"]
+    SNS_TOPIC_ARN = os.environ["SNS_TOPIC_ARN"]
+    PRESIGNED_URL_EXPIRATION = 3600  # 1 hour in seconds
+
+
+@tracer.capture_method
+def generate_presigned_url(
+    bucket: str, key: str, expiration: int = Config.PRESIGNED_URL_EXPIRATION
+) -> str:
+    """Generate a presigned URL for an S3 object."""
+    try:
+        url = s3_client.generate_presigned_url(
+            "get_object", Params={"Bucket": bucket, "Key": key}, ExpiresIn=expiration
+        )
+        return url
+    except Exception as e:
+        logger.exception(f"Error generating presigned URL: {str(e)}")
+        raise
+
+
+@tracer.capture_method
+def send_sns_notification(file_info: Dict[str, Any], presigned_url: str) -> None:
+    """Send SNS notification with file processing results and presigned URL."""
+    try:
+        message = {
+            "status": file_info["status"],
+            "fileName": file_info["fileName"],
+            "responseKey": file_info.get("responseKey"),
+            "downloadUrl": presigned_url,
+            "expiresIn": f"{Config.PRESIGNED_URL_EXPIRATION} seconds",
+            "message": "File processing complete",
+        }
+
+        if file_info.get("error"):
+            message["error"] = file_info["error"]
+
+        sns_client.publish(
+            TopicArn=Config.SNS_TOPIC_ARN,
+            Message=json.dumps(message),
+            Subject=f"File Processing {file_info['status'].title()}: {file_info['fileName']}",
+        )
+
+        metrics.add_metric(name="SNSNotificationsSent", unit=MetricUnit.Count, value=1)
+
+    except Exception as e:
+        logger.exception(f"Error sending SNS notification: {str(e)}")
+        metrics.add_metric(name="SNSNotificationErrors", unit=MetricUnit.Count, value=1)
+        raise
 
 
 @tracer.capture_method
@@ -160,25 +208,41 @@ def process_file(bucket: str, key: str) -> Dict[str, Any]:
             Bucket=Config.OUTPUT_BUCKET, Key=response_key, Body=output.encode("utf-8")
         )
 
-        return {
+        # Generate presigned URL and send notification
+        presigned_url = generate_presigned_url(Config.OUTPUT_BUCKET, response_key)
+
+        result = {
             "fileName": key,
             "status": "success" if valid_response else "failed",
             "responseKey": response_key,
             "callCount": call_count,
         }
 
+        send_sns_notification(result, presigned_url)
+
+        return result
+
     except ClientError as e:
         logger.exception(f"AWS Error processing file {key}")
         metrics.add_metric(name="AWSErrors", unit=MetricUnit.Count, value=1)
-        return {
+        error_result = {
             "fileName": key,
             "status": "error",
             "error": f"AWS Error: {str(e)}",
         }
+        send_sns_notification(error_result, "")
+        return error_result
+
     except Exception as e:
         logger.exception(f"Error processing file {key}")
         metrics.add_metric(name="ProcessingErrors", unit=MetricUnit.Count, value=1)
-        return {"fileName": key, "status": "error", "error": str(e)}
+        error_result = {
+            "fileName": key,
+            "status": "error",
+            "error": str(e),
+        }
+        send_sns_notification(error_result, "")
+        return error_result
 
 
 @logger.inject_lambda_context(log_event=True)
