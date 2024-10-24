@@ -170,7 +170,6 @@ resource "aws_s3_bucket_notification" "input_notification" {
 # S3 Event Notification to SNS
 resource "aws_s3_bucket_notification" "output_notification" {
   bucket     = module.s3_bucket_output.s3_bucket_id
-  depends_on = [module.sns_topic]
 
   topic {
     topic_arn = module.sns_topic.topic_arn
