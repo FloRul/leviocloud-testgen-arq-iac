@@ -20,20 +20,9 @@ logger = Logger()
 tracer = Tracer()
 metrics = Metrics()
 
-# Initialize AWS clients
-config = Config(
-    region_name="us-east-1", retries={"max_attempts": 3, "mode": "standard"}
-)
-
-
-@tracer.capture_method
-def get_aws_client(service_name: str):
-    return boto3.client(service_name, config=config)
-
-
 # Get clients using utility function
-s3_client = get_aws_client("s3")
-bedrock_client = get_aws_client("bedrock-runtime")
+s3_client = boto3.client("s3")
+bedrock_client = boto3.client("bedrock-runtime")
 
 
 # Configuration
