@@ -2,7 +2,6 @@
   source = "terraform-aws-modules/s3-bucket/aws"
 
   bucket                  = "${var.project_name}-file-upload"
-  acl                     = "private"
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
