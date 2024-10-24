@@ -46,9 +46,9 @@ data "aws_caller_identity" "current" {}
 
 # SNS Topic
 module "sns_topic" {
-  source = "terraform-aws-modules/sns/aws"
-
-  name = "${var.project_name}-${var.environment}-notifications"
+  source     = "terraform-aws-modules/sns/aws"
+  depends_on = [aws_s3_bucket_notification.output_notification]
+  name       = "${var.project_name}-${var.environment}-notifications"
   subscriptions = {
     email = {
       protocol = "email"
