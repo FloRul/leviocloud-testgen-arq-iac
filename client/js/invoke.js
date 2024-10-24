@@ -77,17 +77,6 @@ function displayError(field, error) {
 document.addEventListener("DOMContentLoaded", async () => {
   await loadConfig(); // Charger la configuration au démarrage
 
-  const sourceCodeInput = document.getElementById("sourceCode");
-  const sourceCodeFileInput = document.getElementById("sourceCodeFile");
-
-  sourceCodeInput.addEventListener("input", function () {
-    sourceCodeFileInput.disabled = sourceCodeInput.value.trim() !== "";
-  });
-
-  sourceCodeFileInput.addEventListener("change", function () {
-    sourceCodeInput.disabled = sourceCodeFileInput.files.length > 0;
-  });
-
   document
     .getElementById("sourceCodeFile")
     .addEventListener("change", function (event) {
