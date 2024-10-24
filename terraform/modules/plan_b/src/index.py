@@ -25,10 +25,11 @@ bedrock_client = boto3.client("bedrock-runtime")
 
 # Configuration
 class Config:
-    DEFAULT_MODEL = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+    DEFAULT_MODEL = "us.anthropic.claude-3-5-sonnet-20240620-v1:0"
     DEFAULT_MAX_TOKENS = 4096
     DEFAULT_TEMPERATURE = 0.1
     INSTRUCTIONS = (
+        "Génère les tests du code source suivant."
         "Sois aussi exhaustif que possible.\n"
         "Génère ta réponse entre les balises suivantes : <reponse></reponse>, "
         "n'utilise aucune balise supplémentaire."
@@ -109,19 +110,17 @@ def call_bedrock(
 
 
 @tracer.capture_method
-def process_file(file_name: str, prompt: str, model: str) -> Dict[str, Any]:
+def process_file(bucket: str, key: str) -> Dict[str, Any]:
     """Process a single file from S3."""
     try:
         # Get file from S3
-        logger.info(f"Processing file: {file_name}")
+        logger.info(f"Processing file: {key}")
         metrics.add_metric(name="FilesProcessed", unit=MetricUnit.Count, value=1)
 
-        s3_response = s3_client.get_object(
-            Bucket=Config.INPUT_BUCKET, Key=f"{file_name}"
-        )
+        s3_response = s3_client.get_object(bucket, key)
         file_content = s3_response["Body"].read().decode("utf-8")
 
-        system_prompt = prompt + Config.INSTRUCTIONS
+        system_prompt = Config.INSTRUCTIONS
 
         output = file_content
         call_count = 0
@@ -132,7 +131,11 @@ def process_file(file_name: str, prompt: str, model: str) -> Dict[str, Any]:
             with tracer.provider.in_subsegment("bedrock_call") as subsegment:
                 subsegment.put_annotation("attempt", call_count + 1)
 
-                bedrock_response = call_bedrock(system_prompt, output, model)
+                bedrock_response = call_bedrock(
+                    system_prompt,
+                    output,
+                    Config.DEFAULT_MODEL,
+                )
                 output += bedrock_response
                 call_count += 1
 
@@ -145,36 +148,36 @@ def process_file(file_name: str, prompt: str, model: str) -> Dict[str, Any]:
 
         if not valid_response:
             logger.warning(
-                f"Failed to get valid response for {file_name} after "
+                f"Failed to get valid response for {key} after "
                 f"{Config.MAX_BEDROCK_CALL_AMOUNT} attempts"
             )
             metrics.add_metric(name="FailedResponses", unit=MetricUnit.Count, value=1)
 
         # Store response in S3
-        response_key = f"files/response-files/{file_name}-response.txt"
+        response_key = f"files/response-files/{key}-response.txt"
         s3_client.put_object(
             Bucket=Config.OUTPUT_BUCKET, Key=response_key, Body=output.encode("utf-8")
         )
 
         return {
-            "fileName": file_name,
+            "fileName": key,
             "status": "success" if valid_response else "failed",
             "responseKey": response_key,
             "callCount": call_count,
         }
 
     except ClientError as e:
-        logger.exception(f"AWS Error processing file {file_name}")
+        logger.exception(f"AWS Error processing file {key}")
         metrics.add_metric(name="AWSErrors", unit=MetricUnit.Count, value=1)
         return {
-            "fileName": file_name,
+            "fileName": key,
             "status": "error",
             "error": f"AWS Error: {str(e)}",
         }
     except Exception as e:
-        logger.exception(f"Error processing file {file_name}")
+        logger.exception(f"Error processing file {key}")
         metrics.add_metric(name="ProcessingErrors", unit=MetricUnit.Count, value=1)
-        return {"fileName": file_name, "status": "error", "error": str(e)}
+        return {"fileName": key, "status": "error", "error": str(e)}
 
 
 @logger.inject_lambda_context(log_event=True)
@@ -187,12 +190,7 @@ def lambda_handler(event: S3Event, context: LambdaContext) -> Dict[str, Any]:
         responses = []
 
         for record in event.records:
-            event_body = json.loads(record)
-            file_name = event_body["fileName"]
-            prompt = event_body["prompt"]
-            model = event_body.get("model", Config.DEFAULT_MODEL)
-
-            response = process_file(file_name, prompt, model)
+            response = process_file(record.s3.bucket_name, record.s3.get_object.key)
             responses.append(response)
 
         failed_files = [r for r in responses if r["status"] == "error"]
