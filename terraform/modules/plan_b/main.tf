@@ -44,11 +44,19 @@ module "s3_bucket_output" {
 
 data "aws_caller_identity" "current" {}
 
-resource "aws_sns_topic_policy" "default" {
-  depends_on = [aws_s3_bucket_notification.output_notification]
-  arn        = module.sns_topic.topic_arn
+# SNS Topic
+module "sns_topic" {
+  source = "terraform-aws-modules/sns/aws"
 
-  policy = jsonencode({
+  name = "${var.project_name}-${var.environment}-notifications"
+  subscriptions = {
+    email = {
+      protocol = "email"
+      endpoint = "florian.rumiel@levio.ca"
+    }
+  }
+  create_topic_policy = true
+  topic_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
@@ -62,19 +70,6 @@ resource "aws_sns_topic_policy" "default" {
       }
     ]
   })
-}
-
-# SNS Topic
-module "sns_topic" {
-  source = "terraform-aws-modules/sns/aws"
-
-  name = "${var.project_name}-${var.environment}-notifications"
-  subscriptions = {
-    email = {
-      protocol = "email"
-      endpoint = "florian.rumiel@levio.ca"
-    }
-  }
 }
 
 data "aws_region" "current" {}
@@ -162,24 +157,24 @@ module "lambda_function" {
 
 # S3 Event Notification to Lambda
 resource "aws_s3_bucket_notification" "input_notification" {
-  bucket = module.s3_bucket_input.s3_bucket_id
+  bucket     = module.s3_bucket_input.s3_bucket_id
+  depends_on = [module.lambda_function]
 
   lambda_function {
     lambda_function_arn = module.lambda_function.lambda_function_arn
     events              = ["s3:ObjectCreated:*"]
   }
 
-  depends_on = [module.lambda_function]
 }
 
 # S3 Event Notification to SNS
 resource "aws_s3_bucket_notification" "output_notification" {
-  bucket = module.s3_bucket_output.s3_bucket_id
+  bucket     = module.s3_bucket_output.s3_bucket_id
+  depends_on = [module.sns_topic]
 
   topic {
     topic_arn = module.sns_topic.topic_arn
     events    = ["s3:ObjectCreated:*"]
   }
 
-  depends_on = [module.sns_topic]
 }
