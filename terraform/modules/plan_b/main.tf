@@ -42,10 +42,36 @@ module "s3_bucket_output" {
   }
 }
 
+resource "aws_sns_topic_policy" "default" {
+  arn = module.sns_topic.topic_arn
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowS3BucketNotifications"
+        Effect = "Allow"
+        Principal = {
+          Service = "s3.amazonaws.com"
+        }
+        Action   = "SNS:Publish"
+        Resource = module.sns_topic.topic_arn
+        Condition = {
+          StringEquals = {
+            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
+          ArnLike = {
+            "aws:SourceArn" = module.s3_bucket_output.s3_bucket_arn
+          }
+        }
+      }
+    ]
+  })
+}
+
 # SNS Topic
 module "sns_topic" {
   source  = "terraform-aws-modules/sns/aws"
-  version = "~> 5.0"
 
   name = "${var.project_name}-${var.environment}-notifications"
   subscriptions = {
@@ -60,9 +86,8 @@ data "aws_region" "current" {}
 
 # Lambda Module
 module "lambda_function" {
-  source  = "terraform-aws-modules/lambda/aws"
-  version = "~> 5.0"
-
+  source        = "terraform-aws-modules/lambda/aws"
+  depends_on    = [aws_sns_topic_policy.default]
   function_name = "${var.project_name}-${var.environment}-file-processor"
   description   = "Process files using Bedrock and notify via SNS"
   handler       = "lambda_function.lambda_handler"
@@ -72,7 +97,7 @@ module "lambda_function" {
   source_path = "${path.module}/src"
 
   layers = [
-    "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPython:41"
+    "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python311-x86_64:2"
   ]
 
   environment_variables = {
