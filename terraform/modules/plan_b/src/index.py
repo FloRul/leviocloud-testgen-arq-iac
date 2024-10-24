@@ -25,7 +25,7 @@ bedrock_client = boto3.client("bedrock-runtime")
 
 # Configuration
 class Config:
-    DEFAULT_MODEL = "anthropic.claude-3-sonnet-20240229-v1:0"
+    DEFAULT_MODEL = "us.anthropic.claude-3-5-sonnet-20240620-v1:0"
     DEFAULT_MAX_TOKENS = 4096
     DEFAULT_TEMPERATURE = 0.1
     INSTRUCTIONS = (
