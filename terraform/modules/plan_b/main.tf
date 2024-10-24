@@ -97,7 +97,7 @@ module "lambda_function" {
     bedrock = {
       effect = "Allow"
       actions = [
-        "bedrock:InvokeModel"
+        "bedrock:InvokeModel*"
       ]
       resources = ["*"]
     }
