@@ -129,6 +129,7 @@ def process_file(bucket: str, key: str) -> Dict[str, Any]:
         # Loop for Bedrock API calls
         while call_count < Config.MAX_BEDROCK_CALL_AMOUNT and not valid_response:
             with tracer.provider.in_subsegment("bedrock_call") as subsegment:
+                logger.info(f"Bedrock API call attempt {call_count + 1}")
                 subsegment.put_annotation("attempt", call_count + 1)
 
                 bedrock_response = call_bedrock(
@@ -154,7 +155,7 @@ def process_file(bucket: str, key: str) -> Dict[str, Any]:
             metrics.add_metric(name="FailedResponses", unit=MetricUnit.Count, value=1)
 
         # Store response in S3
-        response_key = f"files/response-files/{key}-response.txt"
+        response_key = f"{key}-response.txt"
         s3_client.put_object(
             Bucket=Config.OUTPUT_BUCKET, Key=response_key, Body=output.encode("utf-8")
         )
