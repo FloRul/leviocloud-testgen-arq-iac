@@ -167,12 +167,11 @@ resource "aws_s3_bucket_notification" "input_notification" {
 }
 
 # S3 Event Notification to SNS
-# resource "aws_s3_bucket_notification" "output_notification" {
-#   bucket     = module.s3_bucket_output.s3_bucket_id
+resource "aws_s3_bucket_notification" "output_notification" {
+  bucket = module.s3_bucket_output.s3_bucket_id
 
-#   topic {
-#     topic_arn = module.sns_topic.topic_arn
-#     events    = ["s3:ObjectCreated:*"]
-#   }
-
-# }
+  topic {
+    topic_arn = module.sns_topic.topic_arn
+    events    = ["s3:ObjectCreated:*"]
+  }
+}
