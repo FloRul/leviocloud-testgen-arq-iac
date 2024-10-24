@@ -22,5 +22,5 @@ output "output_bucket_name" {
 
 output "sns_topic_arn" {
   description = "ARN of the SNS topic"
-  value       = module.sns_topic.topic_arn
+  value       = aws_sns_topic.bucket_notifications.arn
 }
