@@ -74,6 +74,16 @@ module "lambda_function" {
 
   attach_policy_statements = true
   policy_statements = {
+    s3_output_presign = {
+      effect = "Allow"
+      actions = [
+        "s3:GetObject"
+      ]
+      resources = [
+        module.s3_bucket_output.s3_bucket_arn,
+        "${module.s3_bucket_output.s3_bucket_arn}/*"
+      ]
+    }
     s3_input = {
       effect = "Allow"
       actions = [
