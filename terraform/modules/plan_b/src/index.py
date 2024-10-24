@@ -117,7 +117,7 @@ def process_file(bucket: str, key: str) -> Dict[str, Any]:
         logger.info(f"Processing file: {key}")
         metrics.add_metric(name="FilesProcessed", unit=MetricUnit.Count, value=1)
 
-        s3_response = s3_client.get_object(bucket, key)
+        s3_response = s3_client.get_object(Bucket=bucket, Key=key)
         file_content = s3_response["Body"].read().decode("utf-8")
 
         system_prompt = Config.INSTRUCTIONS
@@ -188,7 +188,6 @@ def lambda_handler(event: S3Event, context: LambdaContext) -> Dict[str, Any]:
     """Main Lambda handler function with Powertools decorators."""
     try:
         responses = []
-        
 
         for record in event.records:
             response = process_file(event.bucket_name, record.s3.get_object.key)
