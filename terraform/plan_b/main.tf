@@ -64,7 +64,7 @@ module "lambda_function" {
   runtime       = "python3.11"
   timeout       = 30
 
-  source_path = "./lambda"
+  source_path = "${path.module}/src"
 
   layers = [
     "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPython:41"
