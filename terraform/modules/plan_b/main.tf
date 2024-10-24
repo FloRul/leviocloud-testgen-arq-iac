@@ -140,35 +140,45 @@ resource "aws_s3_bucket_notification" "input_notification" {
 
 }
 
-data "aws_iam_policy_document" "topic" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["s3.amazonaws.com"]
-    }
-
-    actions   = ["SNS:Publish"]
-    resources = [aws_sns_topic.topic.arn]
-
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = [module.s3_bucket_input.s3_bucket_arn]
-    }
-  }
-}
-resource "aws_sns_topic" "topic" {
-  name   = "${var.project_name}-${var.environment}-file-processor"
-  policy = data.aws_iam_policy_document.topic.json
+resource "aws_sns_topic" "bucket_notifications" {
+  depends_on = [module.s3_bucket_output]
+  #checkov:skip=CKV_AWS_26: "Ensure all data stored in the SNS topic is encrypted" - No need for encryption
+  name = "${var.project_name}-${var.environment}-processor-output-topic"
 }
 
-resource "aws_s3_bucket_notification" "output_bucket_notification" {
+resource "aws_sns_topic_policy" "default" {
+  arn = aws_sns_topic.bucket_notifications.arn
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "default"
+    Statement = [
+      {
+        Sid    = "Allow S3 to publish to SNS"
+        Effect = "Allow"
+        Principal = {
+          Service = "s3.amazonaws.com"
+        }
+        Action   = "SNS:Publish"
+        Resource = aws_sns_topic.bucket_notifications.arn
+        Condition = {
+          ArnLike = {
+            "aws:SourceArn" = module.s3_bucket_output.s3_bucket_arn
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = module.s3_bucket_output.s3_bucket_id
 
   topic {
-    topic_arn = aws_sns_topic.topic.arn
-    events    = ["s3:ObjectCreated:*"]
+    topic_arn     = aws_sns_topic.bucket_notifications.arn
+    events        = ["s3:ObjectCreated:*"]
+    filter_prefix = "logs/"
   }
+
+  depends_on = [aws_sns_topic_policy.default]
 }
