@@ -59,14 +59,6 @@ resource "aws_sns_topic_policy" "default" {
         }
         Action   = "SNS:Publish"
         Resource = module.sns_topic.topic_arn
-        Condition = {
-          StringEquals = {
-            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
-          }
-          ArnLike = {
-            "aws:SourceArn" = module.s3_bucket_output.s3_bucket_arn
-          }
-        }
       }
     ]
   })
@@ -90,7 +82,7 @@ data "aws_region" "current" {}
 # Lambda Module
 module "lambda_function" {
   source        = "terraform-aws-modules/lambda/aws"
-  depends_on    = [aws_sns_topic_policy.default]
+  depends_on    = [aws_sns_topic_policy.default, module.s3_bucket_input, module.s3_bucket_output]
   function_name = "${var.project_name}-${var.environment}-file-processor"
   description   = "Process files using Bedrock and notify via SNS"
   handler       = "lambda_function.lambda_handler"
