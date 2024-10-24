@@ -46,8 +46,8 @@ data "aws_caller_identity" "current" {}
 
 # SNS Topic
 module "sns_topic" {
-  source     = "terraform-aws-modules/sns/aws"
-  name       = "${var.project_name}-${var.environment}-notifications"
+  source = "terraform-aws-modules/sns/aws"
+  name   = "${var.project_name}-${var.environment}-notifications"
   subscriptions = {
     email = {
       protocol = "email"
@@ -82,8 +82,8 @@ module "lambda_function" {
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.11"
   timeout       = 30
-
-  source_path = "${path.module}/src"
+  publish       = true
+  source_path   = "${path.module}/src"
 
   layers = [
     "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python311-x86_64:2"
@@ -167,12 +167,12 @@ resource "aws_s3_bucket_notification" "input_notification" {
 }
 
 # S3 Event Notification to SNS
-resource "aws_s3_bucket_notification" "output_notification" {
-  bucket     = module.s3_bucket_output.s3_bucket_id
+# resource "aws_s3_bucket_notification" "output_notification" {
+#   bucket     = module.s3_bucket_output.s3_bucket_id
 
-  topic {
-    topic_arn = module.sns_topic.topic_arn
-    events    = ["s3:ObjectCreated:*"]
-  }
+#   topic {
+#     topic_arn = module.sns_topic.topic_arn
+#     events    = ["s3:ObjectCreated:*"]
+#   }
 
-}
+# }
