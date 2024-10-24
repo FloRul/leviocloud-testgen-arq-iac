@@ -10,8 +10,6 @@ from aws_lambda_powertools.utilities.data_classes import (
     S3Event,
     event_source,
 )
-from aws_lambda_powertools.utilities.validation import validate_input
-from aws_lambda_powertools.utilities.validation.exceptions import SchemaValidationError
 from botocore.config import Config
 from botocore.exceptions import ClientError
 
