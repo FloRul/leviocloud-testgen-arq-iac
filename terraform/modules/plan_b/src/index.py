@@ -119,7 +119,7 @@ def process_file(file_name: str, prompt: str, model: str) -> Dict[str, Any]:
         metrics.add_metric(name="FilesProcessed", unit=MetricUnit.Count, value=1)
 
         s3_response = s3_client.get_object(
-            Bucket=Config.INPUT_BUCKET, Key=f"files/uploaded-files/{file_name}"
+            Bucket=Config.INPUT_BUCKET, Key=f"{file_name}"
         )
         file_content = s3_response["Body"].read().decode("utf-8")
 
