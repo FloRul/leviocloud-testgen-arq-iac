@@ -66,7 +66,7 @@ module "sns_topic" {
           Service = "s3.amazonaws.com"
         }
         Action   = "SNS:Publish"
-        Resource = module.sns_topic.topic_arn
+        Resource = module.s3_bucket_output.s3_bucket_arn
       }
     ]
   })
