@@ -2,8 +2,11 @@
 module "s3_bucket_input" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket = "${var.project_name}-${var.environment}-input-files"
-  acl    = "private"
+  bucket                  = "${var.project_name}-${var.environment}-input-files"
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 
   versioning = {
     enabled = true
@@ -21,9 +24,11 @@ module "s3_bucket_input" {
 module "s3_bucket_output" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket = "${var.project_name}-${var.environment}-output-files"
-  acl    = "private"
-
+  bucket                  = "${var.project_name}-${var.environment}-output-files"
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
   versioning = {
     enabled = true
   }
