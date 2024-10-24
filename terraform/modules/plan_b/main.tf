@@ -42,6 +42,8 @@ module "s3_bucket_output" {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_sns_topic_policy" "default" {
   arn = module.sns_topic.topic_arn
 
@@ -71,7 +73,7 @@ resource "aws_sns_topic_policy" "default" {
 
 # SNS Topic
 module "sns_topic" {
-  source  = "terraform-aws-modules/sns/aws"
+  source = "terraform-aws-modules/sns/aws"
 
   name = "${var.project_name}-${var.environment}-notifications"
   subscriptions = {
