@@ -50,12 +50,12 @@ data "aws_region" "current" {}
 # Lambda Module
 module "lambda_function" {
   source        = "terraform-aws-modules/lambda/aws"
-  depends_on    = [aws_sns_topic.bucket_notifications,module.s3_bucket_input, module.s3_bucket_output]
+  depends_on    = [aws_sns_topic.bucket_notifications, module.s3_bucket_input, module.s3_bucket_output]
   function_name = "${var.project_name}-${var.environment}-file-processor"
   description   = "Process files using Bedrock and notify via SNS"
   handler       = "index.lambda_handler"
   runtime       = "python3.11"
-  timeout       = 30
+  timeout       = 900
   publish       = true
   source_path   = "${path.module}/src"
 
