@@ -44,32 +44,6 @@ module "s3_bucket_output" {
 
 data "aws_caller_identity" "current" {}
 
-# SNS Topic
-module "sns_topic" {
-  source = "terraform-aws-modules/sns/aws"
-  name   = "${var.project_name}-${var.environment}-notifications"
-  subscriptions = {
-    email = {
-      protocol = "email"
-      endpoint = "florian.rumiel@levio.ca"
-    }
-  }
-  create_topic_policy = true
-  topic_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "AllowS3BucketNotifications"
-        Effect = "Allow"
-        Principal = {
-          Service = "s3.amazonaws.com"
-        }
-        Action   = "SNS:Publish"
-        Resource = module.s3_bucket_output.s3_bucket_arn
-      }
-    ]
-  })
-}
 
 data "aws_region" "current" {}
 
@@ -166,12 +140,35 @@ resource "aws_s3_bucket_notification" "input_notification" {
 
 }
 
-# S3 Event Notification to SNS
-resource "aws_s3_bucket_notification" "output_notification" {
+data "aws_iam_policy_document" "topic" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["s3.amazonaws.com"]
+    }
+
+    actions   = ["SNS:Publish"]
+    resources = [aws_sns_topic.topic.arn]
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = [module.s3_bucket_input.s3_bucket_arn]
+    }
+  }
+}
+resource "aws_sns_topic" "topic" {
+  name   = "${var.project_name}-${var.environment}-file-processor"
+  policy = data.aws_iam_policy_document.topic.json
+}
+
+resource "aws_s3_bucket_notification" "output_bucket_notification" {
   bucket = module.s3_bucket_output.s3_bucket_id
 
   topic {
-    topic_arn = module.sns_topic.topic_arn
+    topic_arn = aws_sns_topic.topic.arn
     events    = ["s3:ObjectCreated:*"]
   }
 }
