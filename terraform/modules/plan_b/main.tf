@@ -152,7 +152,7 @@ resource "aws_s3_bucket_notification" "output_notification" {
   bucket = module.s3_bucket_output.s3_bucket_id
 
   topic {
-    topic_arn = module.sns_topic.sns_topic_arn
+    topic_arn = module.sns_topic.topic_arn
     events    = ["s3:ObjectCreated:*"]
   }
 
