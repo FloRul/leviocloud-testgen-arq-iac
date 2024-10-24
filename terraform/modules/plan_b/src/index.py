@@ -188,9 +188,10 @@ def lambda_handler(event: S3Event, context: LambdaContext) -> Dict[str, Any]:
     """Main Lambda handler function with Powertools decorators."""
     try:
         responses = []
+        
 
         for record in event.records:
-            response = process_file(record.s3.bucket.name, record.s3.get_object.key)
+            response = process_file(event.bucket_name, record.s3.get_object.key)
             responses.append(response)
 
         failed_files = [r for r in responses if r["status"] == "error"]
