@@ -45,7 +45,8 @@ module "s3_bucket_output" {
 data "aws_caller_identity" "current" {}
 
 resource "aws_sns_topic_policy" "default" {
-  arn = module.sns_topic.topic_arn
+  depends_on = [aws_s3_bucket_notification.output_notification]
+  arn        = module.sns_topic.topic_arn
 
   policy = jsonencode({
     Version = "2012-10-17"
