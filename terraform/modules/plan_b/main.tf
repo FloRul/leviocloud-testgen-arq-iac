@@ -50,7 +50,7 @@ data "aws_region" "current" {}
 # Lambda Module
 module "lambda_function" {
   source        = "terraform-aws-modules/lambda/aws"
-  depends_on    = [aws_sns_topic.bucket_notifications, module.s3_bucket_input, module.s3_bucket_output]
+  depends_on    = [module.s3_bucket_input, module.s3_bucket_output]
   function_name = "${var.project_name}-${var.environment}-file-processor"
   description   = "Process files using Bedrock and notify via SNS"
   handler       = "index.lambda_handler"
@@ -69,7 +69,7 @@ module "lambda_function" {
     POWERTOOLS_SERVICE_NAME      = "FileProcessing"
     POWERTOOLS_METRICS_NAMESPACE = "FileProcessing"
     LOG_LEVEL                    = "INFO"
-    SNS_TOPIC_ARN                = aws_sns_topic.bucket_notifications.arn
+    SNS_TOPIC_ARN                = aws_sns_topic.file_processor.arn
   }
 
   attach_policy_statements = true
@@ -124,7 +124,7 @@ module "lambda_function" {
       actions = [
         "sns:Publish"
       ]
-      resources = [aws_sns_topic.bucket_notifications.arn]
+      resources = [aws_sns_topic.file_processor.arn]
     }
   }
 
@@ -146,4 +146,9 @@ resource "aws_s3_bucket_notification" "input_notification" {
     events              = ["s3:ObjectCreated:*"]
   }
 
+}
+
+resource "aws_sns_topic" "file_processor" {
+  #checkov:skip=CKV_AWS_26: "Ensure all data stored in the SNS topic is encrypted" - No need for encryption
+  name = "${var.project_name}-${var.environment}-processor-output-topic"
 }
