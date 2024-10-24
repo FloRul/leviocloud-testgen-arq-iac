@@ -53,3 +53,11 @@ module "file_processing" {
   environment  = var.environment
   project_name = local.project_name
 }
+
+module "plan_b" {
+  source = "./modules/plan_b"
+
+  environment  = var.environment
+  project_name = local.project_name
+}
+
