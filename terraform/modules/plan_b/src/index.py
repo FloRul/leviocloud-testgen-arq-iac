@@ -157,6 +157,12 @@ def call_bedrock(
         raise
 
 
+def extract_user_prompt(text: str) -> str:
+    """Extract user prompt from the file content."""
+    match = re.search(r"<prompt>([\s\S]*?)</prompt>", text, re.IGNORECASE)
+    return match.group(1) if match else ""
+
+
 @tracer.capture_method
 def process_file(bucket: str, key: str) -> Dict[str, Any]:
     """Process a single file from S3."""
@@ -168,7 +174,9 @@ def process_file(bucket: str, key: str) -> Dict[str, Any]:
         s3_response = s3_client.get_object(Bucket=bucket, Key=key)
         file_content = s3_response["Body"].read().decode("utf-8")
 
-        system_prompt = Config.INSTRUCTIONS
+        user_prompt = extract_user_prompt(file_content)
+
+        system_prompt = user_prompt + Config.INSTRUCTIONS
 
         output = file_content
         call_count = 0
@@ -205,7 +213,9 @@ def process_file(bucket: str, key: str) -> Dict[str, Any]:
         # Store response in S3
         response_key = f"{key}-response.txt"
         s3_client.put_object(
-            Bucket=Config.OUTPUT_BUCKET, Key=response_key, Body=output.encode("utf-8")
+            Bucket=Config.OUTPUT_BUCKET,
+            Key=response_key,
+            Body=("<prompt>" + user_prompt + "</prompt>\n" + output).encode("utf-8"),
         )
 
         # Generate presigned URL and send notification
