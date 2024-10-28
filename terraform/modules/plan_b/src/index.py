@@ -30,8 +30,6 @@ class Config:
     DEFAULT_MAX_TOKENS = 4096
     DEFAULT_TEMPERATURE = 0.1
     INSTRUCTIONS = (
-        "Génère les tests du code source suivant."
-        "Sois aussi exhaustif que possible.\n"
         "Génère ta réponse entre les balises suivantes : <reponse></reponse>, "
         "n'utilise aucune balise supplémentaire."
     )
