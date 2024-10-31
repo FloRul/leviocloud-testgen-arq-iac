@@ -5,7 +5,6 @@ data "aws_cognito_user_pool" "user_pool" {
 }
 #checkov:skip=CKV_AWS_225: "AWS API Gateway method settings do not enable caching" - No need for caching
 #checkov:skip=CKV2_AWS_51: "Ensure AWS API Gateway endpoints uses client certificate authentication" - No need for client certificate authentication
-data "aws_region" "current" {}
 resource "aws_api_gateway_rest_api" "vigie_api" {
   name        = "${var.project_name}-${var.environment}-${local.api_name}"
   description = "Watches API for ${var.project_name}-${var.environment}, mostly CRUD operations"
