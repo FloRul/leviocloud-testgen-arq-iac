@@ -8,8 +8,8 @@ output "file_process_output_bucket_name" {
 
 output "metadata_table" {
   value = {
-    name = module.dynamodb.dynamodb_table_id
-    arn  = module.dynamodb.dynamodb_table_arn
+    name = aws_dynamodb_table.file_metadata.name
+    arn  = aws_dynamodb_table.file_metadata.arn
   }
 }
 
