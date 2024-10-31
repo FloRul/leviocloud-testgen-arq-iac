@@ -12,8 +12,6 @@
   }
 }
 
-
-
 provider "aws" {
   region = "ca-central-1"
   default_tags {
@@ -29,13 +27,19 @@ locals {
   project_name = "leviocloud-testgen-arq-iac"
 }
 
-module "api" {
-  source       = "./modules/api"
-  environment  = var.environment
-  project_name = local.project_name
+resource "aws_s3_bucket" "code_storage" {
+  bucket = "${local.project_name}-${var.environment}-code-storage"
 }
 
-module "hosting" {
+module "api" {
+  source                = "./modules/api"
+  environment           = var.environment
+  project_name          = local.project_name
+  lambda_storage_bucket = aws_s3_bucket.code_storage.id
+  cognito_user_pool_id = var.cognito_user_pool_id
+}
+
+module "client_hosting" {
   source       = "./modules/hosting"
   environment  = var.environment
   project_name = local.project_name
@@ -43,13 +47,6 @@ module "hosting" {
 
 module "storage" {
   source       = "./modules/storage"
-  environment  = var.environment
-  project_name = local.project_name
-}
-
-module "file_processing" {
-  source = "./modules/file_processing"
-
   environment  = var.environment
   project_name = local.project_name
 }

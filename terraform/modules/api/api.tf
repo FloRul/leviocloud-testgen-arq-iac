@@ -1,5 +1,7 @@
-﻿locals {
-  api_name = "api"
+﻿locals { api_name = "api" }
+data "aws_region" "current" {}
+data "aws_cognito_user_pool" "user_pool" {
+  user_pool_id = var.cognito_user_pool_id
 }
 #checkov:skip=CKV_AWS_225: "AWS API Gateway method settings do not enable caching" - No need for caching
 #checkov:skip=CKV2_AWS_51: "Ensure AWS API Gateway endpoints uses client certificate authentication" - No need for client certificate authentication
@@ -8,7 +10,11 @@ resource "aws_api_gateway_rest_api" "vigie_api" {
   name        = "${var.project_name}-${var.environment}-${local.api_name}"
   description = "Watches API for ${var.project_name}-${var.environment}, mostly CRUD operations"
 
-  body = templatefile("${path.module}/api.yml", {})
+  body = templatefile("${path.module}/api.yml", {
+    lambda_arn             = module.lambda_router.lambda_function_arn
+    aws_region             = data.aws_region.current.name
+    cognito_user_pool_arns = jsonencode([aws_cognito_user_pool.user_pool.arn])
+  })
 
   endpoint_configuration {
     types = ["EDGE"]
