@@ -11,7 +11,7 @@ resource "aws_api_gateway_rest_api" "vigie_api" {
 
   body = templatefile("${path.module}/api.yml", {
     lambda_arn             = module.lambda_router.lambda_function_arn
-    aws_region             = data.aws_region.current.name
+    region                 = data.aws_region.current.name
     cognito_user_pool_arns = jsonencode([data.aws_cognito_user_pool.user_pool.arn])
   })
 
