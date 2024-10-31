@@ -14,7 +14,7 @@
   trigger_on_package_timestamp = false
   environment_variables = {
     METADATA_TABLE_NAME = var.metadata_table.name
-    BUCKET_NAME         = var.file_storage_bucket.name
+    BUCKET_NAME         = var.user_files_bucket.name
   }
 
   role_name                = "${var.project_name}-${var.environment}-api-router-role"
@@ -30,8 +30,8 @@
         "s3:DeleteObject"
       ],
       resources = [
-        var.file_storage_bucket.arn,
-        "${var.file_storage_bucket.arn}/*"
+        var.user_files_bucket.arn,
+        "${var.user_files_bucket.arn}/*"
       ]
     }
     dynamodb_metadata = {
