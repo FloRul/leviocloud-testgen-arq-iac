@@ -19,3 +19,20 @@ variable "cognito_user_pool_id" {
   type     = string
   nullable = false
 }
+
+variable "user_files_bucket" {
+  type = object({
+    name = string
+    arn  = string
+  })
+  nullable = false
+}
+
+
+variable "metadata_table" {
+  type = object({
+    name = string
+    arn  = string
+  })
+  nullable = false
+}

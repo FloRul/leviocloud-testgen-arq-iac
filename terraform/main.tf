@@ -36,7 +36,9 @@ module "api" {
   environment           = var.environment
   project_name          = local.project_name
   lambda_storage_bucket = aws_s3_bucket.code_storage.id
-  cognito_user_pool_id = var.cognito_user_pool_id
+  cognito_user_pool_id  = var.cognito_user_pool_id
+  metadata_table        = module.storage.metadata_table
+  user_files_bucket     = module.storage.user_files_bucket
 }
 
 module "client_hosting" {
