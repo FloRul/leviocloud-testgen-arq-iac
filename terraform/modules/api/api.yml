@@ -5,15 +5,14 @@ info:
   version: 1.0.0
 components:
   securitySchemes:
-    CognitoAuth:
-      type: apiKey
-      name: Authorization
-      in: header
-      x-amazon-apigateway-authtype: cognito_user_pools
-      x-amazon-apigateway-authorizer:
-        type: cognito_user_pools
-        providerARNs:
-          - ${cognito_user_pool_arns}
+    UserPool:
+      type: "apiKey"
+      name: "Authorization"
+      in: "header"
+      "x-amazon-apigateway-authtype": "cognito_user_pools"
+      "x-amazon-apigateway-authorizer":
+        type: "cognito_user_pools"
+        providerARNs: ${cognito_user_pool_arns}
 paths:
   /files:
     get:
