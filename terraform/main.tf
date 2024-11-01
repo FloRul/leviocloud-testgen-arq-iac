@@ -40,7 +40,7 @@ module "api" {
   metadata_table        = module.storage.metadata_table
   user_files_bucket     = module.storage.user_files_bucket
   inference_queue       = module.batch_inference.inference_queue
-  jobs_status_table     = module.batch_inference.jobs_status_table
+  jobs_status_table     = module.batch_inference.inference_jobs_status_table
 }
 
 module "client_hosting" {
