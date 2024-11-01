@@ -38,7 +38,6 @@ def list_files():
             IndexName="UploadDateIndex",  # Specify the GSI name
             KeyConditionExpression="user_id = :uid",
             ExpressionAttributeValues={":uid": user_id},
-            ProjectionExpression="ALL",  # Optional: specify attributes if only partial data is needed
         )
 
         return {"statusCode": 200, "body": json.dumps(response.get("Items", []))}
