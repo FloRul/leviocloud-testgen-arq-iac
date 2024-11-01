@@ -134,7 +134,6 @@ def delete_file(file_id: str):
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.API_GATEWAY_REST, log_event=True)
 @tracer.capture_lambda_handler
-@metrics.log_metrics(capture_cold_start_metric=True)
 def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> Dict[str, Any]:
     try:
         return app.resolve(event, context)
