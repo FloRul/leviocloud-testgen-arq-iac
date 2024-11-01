@@ -35,7 +35,6 @@ def list_files():
 
     try:
         response = metadata_table.query(
-            IndexName="UploadDateIndex",  # Specify the GSI name
             KeyConditionExpression="user_id = :uid",
             ExpressionAttributeValues={":uid": user_id},
         )
@@ -131,7 +130,9 @@ def delete_file(file_id: str):
         raise FileStorageError("Failed to delete file")
 
 
-@logger.inject_lambda_context(correlation_id_path=correlation_paths.API_GATEWAY_REST, log_event=True)
+@logger.inject_lambda_context(
+    correlation_id_path=correlation_paths.API_GATEWAY_REST, log_event=True
+)
 @tracer.capture_lambda_handler
 def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> Dict[str, Any]:
     try:
