@@ -1,5 +1,5 @@
 ﻿import os
-import json
+import simplejson as json
 import base64
 import uuid
 from typing import Dict, Any
@@ -38,8 +38,6 @@ def list_files():
             KeyConditionExpression="user_id = :uid",
             ExpressionAttributeValues={":uid": user_id},
         )
-        logger.info(response)
-        logger.info(type(response.get("Items", []).get("size")))
         return {"statusCode": 200, "body": json.dumps(response.get("Items", []))}
     except ClientError as e:
         logger.exception("Failed to list files")
@@ -131,9 +129,7 @@ def delete_file(file_id: str):
         raise FileStorageError("Failed to delete file")
 
 
-@logger.inject_lambda_context(
-    correlation_id_path=correlation_paths.API_GATEWAY_REST, log_event=True
-)
+@logger.inject_lambda_context(correlation_id_path=correlation_paths.API_GATEWAY_REST)
 @tracer.capture_lambda_handler
 def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> Dict[str, Any]:
     try:
