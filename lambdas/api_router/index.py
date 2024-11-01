@@ -81,7 +81,7 @@ def upload_file():
             "file_id": file_id,
             "filename": filename,
             "content_type": content_type,
-            "size": len(file_content),
+            "size": int(len(file_content)),
             "s3_key": key,
         }
 
