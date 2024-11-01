@@ -20,7 +20,8 @@ module "lambda_router" {
     METADATA_TABLE          = var.metadata_table.name
     BUCKET_NAME             = var.user_files_bucket.name
     POWERTOOLS_SERVICE_NAME = "${var.project_name}-${var.environment}-${local.lambda_name}"
-    INFERENCE_QUEUE_URL     = var.inference_queue.url
+    INFERENCE_QUEUE_URL     = var.inference_queue.name
+    INFERENCE_JOBS_TABLE    = var.jobs_status_table.name
   }
 
   role_name                = "${var.project_name}-${var.environment}-${local.lambda_name}-role"
@@ -70,8 +71,8 @@ module "lambda_router" {
         "dynamodb:DeleteItem"
       ],
       resources = [
-        var.inference_jobs_status_table.arn,
-        "${var.inference_jobs_status_table.arn}/index/*"
+        var.jobs_status_table.arn,
+        "${var.jobs_status_table.arn}/index/*"
       ]
     }
   }

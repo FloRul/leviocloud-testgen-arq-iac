@@ -133,7 +133,44 @@ def delete_file(file_id: str):
 @app.post("/jobs")
 @tracer.capture_method
 def create_batch_inference_job():
-    print("create_batch_inference_job")
+    job_id = str(uuid.uuid4())
+    user_id = app.current_event.request_context.authorizer.claims.get("sub")
+
+    # send SQS message
+    try:
+        message_id = sqs_client.send_message(
+            QueueUrl=os.environ["SQS_URL"],
+            MessageBody=json.dumps(
+                {
+                    "user_id": user_id,
+                    "job_id": job_id,
+                    "status": "PENDING",
+                    "input_files": [],
+                }
+            ),
+        )["MessageId"]
+    except ClientError as e:
+        logger.exception("Failed to send SQS message")
+        raise FileStorageError("Failed to send SQS message : " + str(e))
+
+    # write job in DynamoDB
+    try:
+        metadata_table.put_item(
+            Item={
+                "user_id": user_id,
+                "job_id": job_id,
+                "status": "PENDING",
+                "input_files": [],
+            }
+        )
+    except ClientError as e:
+        logger.exception("Failed to write job in DynamoDB")
+        raise FileStorageError("Failed to write job in DynamoDB : " + str(e))
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"message": "Job created successfully", "job_id": job_id}),
+    }
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.API_GATEWAY_REST)
