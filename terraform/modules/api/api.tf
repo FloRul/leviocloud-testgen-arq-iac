@@ -5,7 +5,7 @@ data "aws_cognito_user_pool" "user_pool" {
 }
 #checkov:skip=CKV_AWS_225: "AWS API Gateway method settings do not enable caching" - No need for caching
 #checkov:skip=CKV2_AWS_51: "Ensure AWS API Gateway endpoints uses client certificate authentication" - No need for client certificate authentication
-resource "aws_api_gateway_rest_api" "vigie_api" {
+resource "aws_api_gateway_rest_api" "files_api" {
   name        = "${var.project_name}-${var.environment}-${local.api_name}"
   description = "Watches API for ${var.project_name}-${var.environment}, mostly CRUD operations"
 
@@ -24,13 +24,22 @@ resource "aws_api_gateway_rest_api" "vigie_api" {
   }
 }
 
+resource "aws_lambda_permission" "apigw" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = module.lambda_router.lambda_function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.files_api.execution_arn}/*/*"
+}
+
 resource "aws_api_gateway_deployment" "this" {
   depends_on  = [aws_api_gateway_account.this]
-  rest_api_id = aws_api_gateway_rest_api.vigie_api.id
+  rest_api_id = aws_api_gateway_rest_api.files_api.id
 
   triggers = {
     redeployment = sha256(jsonencode([
-      aws_api_gateway_rest_api.vigie_api.body,
+      aws_api_gateway_rest_api.files_api.body,
     ]))
   }
 
@@ -100,7 +109,7 @@ resource "aws_api_gateway_account" "this" {
 # Add this new resource to enable logging
 resource "aws_api_gateway_method_settings" "all" {
   depends_on  = [aws_api_gateway_account.this]
-  rest_api_id = aws_api_gateway_rest_api.vigie_api.id
+  rest_api_id = aws_api_gateway_rest_api.files_api.id
   stage_name  = aws_api_gateway_stage.this.stage_name
   method_path = "*/*"
 
@@ -114,7 +123,7 @@ resource "aws_api_gateway_method_settings" "all" {
 resource "aws_api_gateway_stage" "this" {
   depends_on    = [aws_api_gateway_account.this]
   deployment_id = aws_api_gateway_deployment.this.id
-  rest_api_id   = aws_api_gateway_rest_api.vigie_api.id
+  rest_api_id   = aws_api_gateway_rest_api.files_api.id
   stage_name    = var.environment
   variables = {
     "cors" = "true"
