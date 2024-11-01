@@ -13,7 +13,7 @@
   s3_bucket                    = var.lambda_storage_bucket
   trigger_on_package_timestamp = false
   environment_variables = {
-    METADATA_TABLE_NAME = var.metadata_table.name
+    METADATA_TABLE = var.metadata_table.name
     BUCKET_NAME         = var.user_files_bucket.name
   }
 

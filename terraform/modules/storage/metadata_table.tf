@@ -3,6 +3,7 @@
   billing_mode = "PAY_PER_REQUEST" # Or use PROVISIONED with read/write capacity units
   hash_key     = "user_id"
   range_key    = "file_id"
+  
 
   attribute {
     name = "user_id"
