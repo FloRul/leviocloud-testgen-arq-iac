@@ -20,6 +20,7 @@ app = APIGatewayRestResolver()
 s3_client = boto3.client("s3")
 dynamodb = boto3.resource("dynamodb")
 metadata_table = dynamodb.Table(os.environ["METADATA_TABLE"])
+bedrock_client = boto3.client("bedrock")
 BUCKET_NAME = os.environ["BUCKET_NAME"]
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
@@ -127,6 +128,12 @@ def delete_file(file_id: str):
     except ClientError as e:
         logger.exception("Failed to delete file")
         raise FileStorageError("Failed to delete file")
+
+
+@app.post("/jobs")
+@tracer.capture_method
+def create_batch_inference_job():
+    print("create_batch_inference_job")
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.API_GATEWAY_REST)

@@ -85,5 +85,77 @@ paths:
         "500":
           description: Internal server error
 
+  /jobs:
+    post:
+      summary: Submit a batch inference job
+      security:
+        - UserPool: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+          schema:
+            type: object
+            properties:
+              files:
+                type: array
+                items:
+                  type: string
+              prompt:
+                type: string
+      x-amazon-apigateway-integration:
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambda_arn}/invocations
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      responses:
+        "200":
+          description: Job submitted successfully
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+    get:
+      summary: List all jobs for the authenticated user
+      security:
+        - UserPool: []
+      x-amazon-apigateway-integration:
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambda_arn}/invocations
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      responses:
+        "200":
+          description: Successfully retrieved job list
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+
+  /jobs/{job_id}:
+    get:
+      summary: Retrieve a specific job
+      security:
+        - UserPool: []
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      x-amazon-apigateway-integration:
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambda_arn}/invocations
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      responses:
+        "200":
+          description: Successfully retrieved job
+        "403":
+          description: Unauthorized
+        "404":
+          description: Job not found
+        "500":
+          description: Internal server error
 x-amazon-apigateway-binary-media-types:
   - "*/*"

@@ -52,5 +52,23 @@ module "lambda_router" {
         "${var.metadata_table.arn}/index/*"
       ]
     }
+    batch_inference_jobs = {
+      effect = "Allow",
+      actions = [
+        "bedrock:ListFoundationModels",
+        "bedrock:GetFoundationModel",
+        "bedrock:TagResource",
+        "bedrock:UntagResource",
+        "bedrock:ListTagsForResource",
+        "bedrock:CreateModelInvocationJob",
+        "bedrock:GetModelInvocationJob",
+        "bedrock:ListModelInvocationJobs",
+        "bedrock:StopModelInvocationJob"
+      ],
+      resources = [
+        "*"
+      ]
+
+    }
   }
 }
