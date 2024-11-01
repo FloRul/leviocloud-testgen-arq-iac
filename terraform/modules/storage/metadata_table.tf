@@ -19,11 +19,6 @@
     type = "S"
   }
 
-  attribute {
-    name = "file_name"
-    type = "S"
-  }
-
   # Optional: Point-in-time recovery
   point_in_time_recovery {
     enabled = true
