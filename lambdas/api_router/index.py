@@ -39,6 +39,7 @@ def list_files():
             ExpressionAttributeValues={":uid": user_id},
         )
         logger.info(response)
+        logger.info(type(response.get("Items", []).get("size")))
         return {"statusCode": 200, "body": json.dumps(response.get("Items", []))}
     except ClientError as e:
         logger.exception("Failed to list files")
