@@ -51,13 +51,12 @@ def list_files():
 @tracer.capture_method
 def upload_file():
     user_id = app.current_event.request_context.authorizer.claims.get("sub")
-    event_body = app.current_event.body
-
-    if not event_body or not app.current_event.is_base64_encoded:
+    logger.info(f"User ID from claims: {user_id}")
+    if not app.current_event.body or not app.current_event.is_base64_encoded:
         return {"statusCode": 400, "body": json.dumps({"message": "Invalid request"})}
 
     # Decode base64 content
-    file_content = base64.b64decode(event_body)
+    file_content = base64.b64decode(app.current_event.body)
 
     # Check file size
     if len(file_content) > MAX_FILE_SIZE:

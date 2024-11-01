@@ -1,6 +1,10 @@
-﻿module "lambda_router" {
+﻿locals {
+  lambda_name = "api-router"
+}
+
+module "lambda_router" {
   source        = "terraform-aws-modules/lambda/aws"
-  function_name = "${var.project_name}-${var.environment}-api-router"
+  function_name = "${var.project_name}-${var.environment}-${local.lambda_name}"
   description   = "Lambda function for API Gateway"
   handler       = "index.lambda_handler"
   runtime       = "python3.11"
@@ -13,11 +17,12 @@
   s3_bucket                    = var.lambda_storage_bucket
   trigger_on_package_timestamp = false
   environment_variables = {
-    METADATA_TABLE = var.metadata_table.name
-    BUCKET_NAME         = var.user_files_bucket.name
+    METADATA_TABLE          = var.metadata_table.name
+    BUCKET_NAME             = var.user_files_bucket.name
+    POWERTOOLS_SERVICE_NAME = "${var.project_name}-${var.environment}-${local.lambda_name}"
   }
 
-  role_name                = "${var.project_name}-${var.environment}-api-router-role"
+  role_name                = "${var.project_name}-${var.environment}-${local.lambda_name}-role"
   attach_policy_statements = true
 
   policy_statements = {
