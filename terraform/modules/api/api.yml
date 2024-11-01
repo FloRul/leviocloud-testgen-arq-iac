@@ -18,7 +18,7 @@ paths:
     get:
       summary: List all files for the authenticated user
       security:
-        - CognitoAuth: []
+        - UserPool: []
       x-amazon-apigateway-integration:
         uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambda_arn}/invocations
         httpMethod: POST
@@ -35,7 +35,7 @@ paths:
     post:
       summary: Upload a new file
       security:
-        - CognitoAuth: []
+        - UserPool: []
       requestBody:
         required: true
         content:
@@ -63,7 +63,7 @@ paths:
     delete:
       summary: Delete a specific file
       security:
-        - CognitoAuth: []
+        - UserPool: []
       parameters:
         - name: filename
           in: path
