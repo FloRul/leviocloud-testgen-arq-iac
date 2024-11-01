@@ -2,7 +2,7 @@
   name         = "${var.project_name}-file-metadata-${var.environment}"
   billing_mode = "PAY_PER_REQUEST" # Or use PROVISIONED with read/write capacity units
   hash_key     = "user_id"
-  range_key    = "filename"
+  range_key    = "file_id"
 
   attribute {
     name = "user_id"
@@ -10,12 +10,17 @@
   }
 
   attribute {
-    name = "filename"
+    name = "file_id"
     type = "S"
   }
 
   attribute {
     name = "upload_date"
+    type = "S"
+  }
+
+  attribute {
+    name = "file_name"
     type = "S"
   }
 

@@ -1,6 +1,7 @@
 ﻿import os
 import json
 import base64
+import uuid
 from typing import Dict, Any
 
 import boto3
@@ -34,8 +35,10 @@ def list_files():
 
     try:
         response = metadata_table.query(
+            IndexName="UploadDateIndex",  # Specify the GSI name
             KeyConditionExpression="user_id = :uid",
             ExpressionAttributeValues={":uid": user_id},
+            ProjectionExpression="ALL",  # Optional: specify attributes if only partial data is needed
         )
 
         return {"statusCode": 200, "body": json.dumps(response.get("Items", []))}
@@ -64,7 +67,10 @@ def upload_file():
         "content-type", "application/octet-stream"
     )
     filename = app.current_event.headers.get("filename", "unnamed-file")
-    key = f"{user_id}/{filename}"
+
+    # Generate unique file_id
+    file_id = str(uuid.uuid4())
+    key = f"{user_id}/{file_id}"
 
     try:
         # Upload to S3
@@ -75,6 +81,7 @@ def upload_file():
         # Store metadata
         metadata = {
             "user_id": user_id,
+            "file_id": file_id,
             "filename": filename,
             "content_type": content_type,
             "size": len(file_content),
@@ -94,18 +101,28 @@ def upload_file():
         raise FileStorageError("Failed to upload file")
 
 
-@app.delete("/files/<filename>")
+@app.delete("/files/<file_id>")
 @tracer.capture_method
-def delete_file(filename: str):
+def delete_file(file_id: str):
     user_id = app.current_event.request_context.authorizer.claims.get("sub")
-    key = f"{user_id}/{filename}"
 
     try:
+        # First, retrieve the metadata to get the S3 key
+        response = metadata_table.get_item(Key={"user_id": user_id, "file_id": file_id})
+
+        if "Item" not in response:
+            return {
+                "statusCode": 404,
+                "body": json.dumps({"message": "File not found"}),
+            }
+
+        s3_key = response["Item"]["s3_key"]
+
         # Delete from S3
-        s3_client.delete_object(Bucket=BUCKET_NAME, Key=key)
+        s3_client.delete_object(Bucket=BUCKET_NAME, Key=s3_key)
 
         # Delete metadata
-        metadata_table.delete_item(Key={"user_id": user_id, "filename": filename})
+        metadata_table.delete_item(Key={"user_id": user_id, "file_id": file_id})
 
         return {
             "statusCode": 200,
