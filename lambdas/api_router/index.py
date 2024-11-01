@@ -38,7 +38,7 @@ def list_files():
             KeyConditionExpression="user_id = :uid",
             ExpressionAttributeValues={":uid": user_id},
         )
-
+        logger.info(response)
         return {"statusCode": 200, "body": json.dumps(response.get("Items", []))}
     except ClientError as e:
         logger.exception("Failed to list files")
