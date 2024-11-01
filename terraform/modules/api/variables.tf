@@ -36,3 +36,19 @@ variable "metadata_table" {
   })
   nullable = false
 }
+
+variable "inference_queue" {
+  type = object({
+    name = string
+    arn  = string
+  })
+  nullable = false
+}
+
+variable "jobs_status_table" {
+  type = object({
+    name = string
+    arn  = string
+  })
+  nullable = false
+}

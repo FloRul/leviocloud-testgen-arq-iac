@@ -20,7 +20,7 @@ app = APIGatewayRestResolver()
 s3_client = boto3.client("s3")
 dynamodb = boto3.resource("dynamodb")
 metadata_table = dynamodb.Table(os.environ["METADATA_TABLE"])
-bedrock_client = boto3.client("bedrock")
+sqs_client = boto3.client("sqs")
 BUCKET_NAME = os.environ["BUCKET_NAME"]
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 

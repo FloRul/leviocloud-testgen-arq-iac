@@ -39,6 +39,8 @@ module "api" {
   cognito_user_pool_id  = var.cognito_user_pool_id
   metadata_table        = module.storage.metadata_table
   user_files_bucket     = module.storage.user_files_bucket
+  inference_queue       = module.batch_inference.inference_queue
+  jobs_status_table     = module.batch_inference.jobs_status_table
 }
 
 module "client_hosting" {
@@ -56,6 +58,12 @@ module "storage" {
 module "plan_b" {
   source = "./modules/plan_b"
 
+  environment  = var.environment
+  project_name = local.project_name
+}
+
+module "batch_inference" {
+  source       = "./modules/batch_inference"
   environment  = var.environment
   project_name = local.project_name
 }

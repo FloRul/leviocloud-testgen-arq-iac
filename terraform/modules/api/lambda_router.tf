@@ -20,6 +20,7 @@ module "lambda_router" {
     METADATA_TABLE          = var.metadata_table.name
     BUCKET_NAME             = var.user_files_bucket.name
     POWERTOOLS_SERVICE_NAME = "${var.project_name}-${var.environment}-${local.lambda_name}"
+    INFERENCE_QUEUE_URL     = var.inference_queue.url
   }
 
   role_name                = "${var.project_name}-${var.environment}-${local.lambda_name}-role"
@@ -52,23 +53,26 @@ module "lambda_router" {
         "${var.metadata_table.arn}/index/*"
       ]
     }
-    batch_inference_jobs = {
+    sqs_batch_inference = {
       effect = "Allow",
       actions = [
-        "bedrock:ListFoundationModels",
-        "bedrock:GetFoundationModel",
-        "bedrock:TagResource",
-        "bedrock:UntagResource",
-        "bedrock:ListTagsForResource",
-        "bedrock:CreateModelInvocationJob",
-        "bedrock:GetModelInvocationJob",
-        "bedrock:ListModelInvocationJobs",
-        "bedrock:StopModelInvocationJob"
+        "sqs:SendMessage"
       ],
       resources = [
-        "*"
+        var.inference_queue.arn
       ]
-
+    }
+    dynamodb_jobs_status = {
+      effect = "Allow",
+      actions = [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:DeleteItem"
+      ],
+      resources = [
+        var.inference_jobs_status_table.arn,
+        "${var.inference_jobs_status_table.arn}/index/*"
+      ]
     }
   }
 }
