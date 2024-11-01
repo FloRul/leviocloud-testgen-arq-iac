@@ -94,15 +94,15 @@ paths:
         required: true
         content:
           application/json:
-          schema:
-            type: object
-            properties:
-              files:
-                type: array
-                items:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                prompt:
                   type: string
-              prompt:
-                type: string
       x-amazon-apigateway-integration:
         uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambda_arn}/invocations
         httpMethod: POST
