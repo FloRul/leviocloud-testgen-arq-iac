@@ -138,7 +138,7 @@ def create_batch_inference_job():
 
     # send SQS message
     try:
-        message_id = sqs_client.send_message(
+        sqs_client.send_message(
             QueueUrl=os.environ["SQS_URL"],
             MessageBody=json.dumps(
                 {
