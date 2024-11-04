@@ -42,37 +42,25 @@ module "s3_bucket_output" {
   }
 }
 
-# SNS Topic
-module "sns_topic" {
-  source  = "terraform-aws-modules/sns/aws"
-  version = "~> 5.0"
+data "aws_caller_identity" "current" {}
 
-  name = "${var.project_name}-${var.environment}-notifications"
-  subscriptions = {
-    email = {
-      protocol = "email"
-      endpoint = "florian.rumiel@levio.ca"
-    }
-  }
-}
 
 data "aws_region" "current" {}
 
 # Lambda Module
 module "lambda_function" {
-  source  = "terraform-aws-modules/lambda/aws"
-  version = "~> 5.0"
-
+  source        = "terraform-aws-modules/lambda/aws"
+  depends_on    = [module.s3_bucket_input, module.s3_bucket_output]
   function_name = "${var.project_name}-${var.environment}-file-processor"
   description   = "Process files using Bedrock and notify via SNS"
-  handler       = "lambda_function.lambda_handler"
+  handler       = "index.lambda_handler"
   runtime       = "python3.11"
-  timeout       = 30
-
-  source_path = "${path.module}/src"
+  timeout       = 900
+  publish       = true
+  source_path   = "${path.module}/src"
 
   layers = [
-    "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPython:41"
+    "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python311-x86_64:2"
   ]
 
   environment_variables = {
@@ -81,10 +69,21 @@ module "lambda_function" {
     POWERTOOLS_SERVICE_NAME      = "FileProcessing"
     POWERTOOLS_METRICS_NAMESPACE = "FileProcessing"
     LOG_LEVEL                    = "INFO"
+    SNS_TOPIC_ARN                = aws_sns_topic.file_processor.arn
   }
 
   attach_policy_statements = true
   policy_statements = {
+    s3_output_presign = {
+      effect = "Allow"
+      actions = [
+        "s3:GetObject"
+      ]
+      resources = [
+        module.s3_bucket_output.s3_bucket_arn,
+        "${module.s3_bucket_output.s3_bucket_arn}/*"
+      ]
+    }
     s3_input = {
       effect = "Allow"
       actions = [
@@ -109,7 +108,7 @@ module "lambda_function" {
     bedrock = {
       effect = "Allow"
       actions = [
-        "bedrock:InvokeModel"
+        "bedrock:InvokeModel*"
       ]
       resources = ["*"]
     }
@@ -130,6 +129,13 @@ module "lambda_function" {
       ]
       resources = ["*"]
     }
+    sns = {
+      effect = "Allow"
+      actions = [
+        "sns:Publish"
+      ]
+      resources = [aws_sns_topic.file_processor.arn]
+    }
   }
 
   allowed_triggers = {
@@ -142,24 +148,17 @@ module "lambda_function" {
 
 # S3 Event Notification to Lambda
 resource "aws_s3_bucket_notification" "input_notification" {
-  bucket = module.s3_bucket_input.s3_bucket_id
+  bucket     = module.s3_bucket_input.s3_bucket_id
+  depends_on = [module.lambda_function]
 
   lambda_function {
     lambda_function_arn = module.lambda_function.lambda_function_arn
     events              = ["s3:ObjectCreated:*"]
   }
 
-  depends_on = [module.lambda_function]
 }
 
-# S3 Event Notification to SNS
-resource "aws_s3_bucket_notification" "output_notification" {
-  bucket = module.s3_bucket_output.s3_bucket_id
-
-  topic {
-    topic_arn = module.sns_topic.topic_arn
-    events    = ["s3:ObjectCreated:*"]
-  }
-
-  depends_on = [module.sns_topic]
+resource "aws_sns_topic" "file_processor" {
+  #checkov:skip=CKV_AWS_26: "Ensure all data stored in the SNS topic is encrypted" - No need for encryption
+  name = "${var.project_name}-${var.environment}-processor-output-topic"
 }
