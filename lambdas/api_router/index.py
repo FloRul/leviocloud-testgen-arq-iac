@@ -45,7 +45,7 @@ def list_files():
         return {"Items": response.get("Items", [])}
     except ClientError as e:
         logger.exception("Failed to list files")
-        raise ServiceError("Failed to retrieve files")
+        raise ServiceError(msg="Failed to retrieve files")
 
 
 @app.post("/files")
@@ -101,7 +101,7 @@ def upload_file():
         logger.error(f"AWS error during upload: {error_code}")
         if error_code == "NoSuchBucket":
             raise NotFoundError("Storage bucket not found")
-        raise ServiceError("Failed to upload file")
+        raise ServiceError(msg="Failed to upload file")
 
 
 @app.delete("/files/<file_id>")
@@ -132,7 +132,7 @@ def delete_file(file_id: str):
         logger.error(f"AWS error during deletion: {error_code}")
         if error_code == "ResourceNotFoundException":
             raise NotFoundError("File metadata not found")
-        raise ServiceError("Failed to delete file")
+        raise ServiceError(msg="Failed to delete file")
 
 
 def retrieve_files(user_id: str, file_list: List[str]) -> List[Dict[str, Any]]:
@@ -149,7 +149,7 @@ def retrieve_files(user_id: str, file_list: List[str]) -> List[Dict[str, Any]]:
             logger.error(f"Error retrieving file {file_id}: {error_code}")
             if error_code == "ResourceNotFoundException":
                 continue
-            raise ServiceError(f"Failed to retrieve file {file_id}")
+            raise ServiceError(msg=f"Failed to retrieve file {file_id}")
     return files
 
 
@@ -207,7 +207,7 @@ def create_batch_inference_job():
             raise NotFoundError("Job queue not available")
         elif error_code == "InvalidMessageContents":
             raise BadRequestError("Invalid message format")
-        raise ServiceError("Failed to queue job")
+        raise ServiceError(msg="Failed to queue job")
 
     # Write job to DynamoDB
     try:
@@ -229,9 +229,9 @@ def create_batch_inference_job():
             raise NotFoundError("Jobs table not found")
         elif error_code == "ProvisionedThroughputExceededException":
             raise ServiceError(
-                "Service is currently overloaded, please try again later"
+                msg="Service is currently overloaded, please try again later"
             )
-        raise ServiceError("Failed to create job record")
+        raise ServiceError(msg="Failed to create job record")
 
     return {
         "statusCode": 201,
