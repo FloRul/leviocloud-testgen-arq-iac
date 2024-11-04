@@ -2,14 +2,13 @@
 import simplejson as json
 import base64
 import uuid
-from typing import Dict, Any
-
+from typing import Dict, Any, List
+import time
 import boto3
 from aws_lambda_powertools import Logger, Tracer, Metrics
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from aws_lambda_powertools.logging import correlation_paths
-from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 from botocore.exceptions import ClientError
 
 logger = Logger()
@@ -130,46 +129,175 @@ def delete_file(file_id: str):
         raise FileStorageError("Failed to delete file")
 
 
+def retrieve_files(user_id, file_list: List[str]):
+    for file_id in file_list:
+        try:
+            response = metadata_table.get_item(
+                Key={"user_id": user_id, "file_id": file_id}
+            )
+            yield response["Item"]
+        except ClientError as e:
+            logger.exception("Failed to retrieve file")
+            raise FileStorageError("Failed to retrieve file")
+
+
 @app.post("/jobs")
 @tracer.capture_method
 def create_batch_inference_job():
     job_id = str(uuid.uuid4())
     user_id = app.current_event.request_context.authorizer.claims.get("sub")
 
-    # send SQS message
+    # Validate request body
     try:
-        sqs_client.send_message(
-            QueueUrl=os.environ["SQS_URL"],
-            MessageBody=json.dumps(
-                {
-                    "user_id": user_id,
-                    "job_id": job_id,
-                    "status": "PENDING",
-                    "input_files": [],
-                }
-            ),
-        )["MessageId"]
-    except ClientError as e:
-        logger.exception("Failed to send SQS message")
-        raise FileStorageError("Failed to send SQS message : " + str(e))
+        if not app.current_event.body:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "Request body is required"}),
+            }
 
-    # write job in DynamoDB
+        file_list = json.loads(app.current_event.body)
+
+        if not isinstance(file_list, list):
+            return {
+                "statusCode": 400,
+                "body": json.dumps(
+                    {"message": "Request body must be a list of file IDs"}
+                ),
+            }
+
+        if not file_list:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "File list cannot be empty"}),
+            }
+
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON format: {str(e)}")
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"message": "Invalid JSON format in request body"}),
+        }
+
+    # Retrieve files
+    try:
+        files = list(retrieve_files(user_id, file_list))
+
+        if not files:
+            return {
+                "statusCode": 404,
+                "body": json.dumps(
+                    {"message": "None of the specified files were found"}
+                ),
+            }
+
+    except ClientError as e:
+        error_code = e.response["Error"]["Code"]
+        logger.error(f"DynamoDB error while retrieving files: {error_code}")
+
+        if error_code == "ResourceNotFoundException":
+            return {
+                "statusCode": 404,
+                "body": json.dumps({"message": "Files table not found"}),
+            }
+        elif error_code == "ProvisionedThroughputExceededException":
+            return {
+                "statusCode": 429,
+                "body": json.dumps(
+                    {"message": "Too many requests, please try again later"}
+                ),
+            }
+        else:
+            return {
+                "statusCode": 500,
+                "body": json.dumps({"message": "Failed to retrieve files"}),
+            }
+    except FileStorageError as e:
+        logger.error(f"File storage error: {str(e)}")
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"message": f"Error retrieving files: {str(e)}"}),
+        }
+
+    # Send SQS message
+    try:
+        message_body = {
+            "user_id": user_id,
+            "job_id": job_id,
+            "status": "PENDING",
+            "input_files": files,
+        }
+
+        sqs_client.send_message(
+            QueueUrl=os.environ["INFERENCE_QUEUE_URL"],
+            MessageBody=json.dumps(message_body),
+        )
+
+    except ClientError as e:
+        error_code = e.response["Error"]["Code"]
+        logger.error(f"SQS error: {error_code}")
+
+        if error_code == "QueueDoesNotExist":
+            return {
+                "statusCode": 500,
+                "body": json.dumps({"message": "Job queue not available"}),
+            }
+        elif error_code == "InvalidMessageContents":
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "Invalid message format"}),
+            }
+        else:
+            return {
+                "statusCode": 500,
+                "body": json.dumps({"message": "Failed to queue job"}),
+            }
+
+    # Write job to DynamoDB
     try:
         metadata_table.put_item(
             Item={
                 "user_id": user_id,
                 "job_id": job_id,
                 "status": "PENDING",
-                "input_files": [],
+                "input_files": files,
+                "created_at": int(time.time()),
+                "updated_at": int(time.time()),
             }
         )
-    except ClientError as e:
-        logger.exception("Failed to write job in DynamoDB")
-        raise FileStorageError("Failed to write job in DynamoDB : " + str(e))
 
+    except ClientError as e:
+        error_code = e.response["Error"]["Code"]
+        logger.error(f"DynamoDB error while creating job: {error_code}")
+
+        if error_code == "ResourceNotFoundException":
+            return {
+                "statusCode": 500,
+                "body": json.dumps({"message": "Jobs table not found"}),
+            }
+        elif error_code == "ProvisionedThroughputExceededException":
+            return {
+                "statusCode": 429,
+                "body": json.dumps(
+                    {"message": "Too many requests, please try again later"}
+                ),
+            }
+        else:
+            return {
+                "statusCode": 500,
+                "body": json.dumps({"message": "Failed to create job record"}),
+            }
+
+    # Success response
     return {
-        "statusCode": 200,
-        "body": json.dumps({"message": "Job created successfully", "job_id": job_id}),
+        "statusCode": 201,
+        "body": json.dumps(
+            {
+                "message": "Job created successfully",
+                "job_id": job_id,
+                "status": "PENDING",
+                "file_count": len(files),
+            }
+        ),
     }
 
 
