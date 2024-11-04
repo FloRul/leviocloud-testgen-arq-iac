@@ -25,6 +25,7 @@ app = APIGatewayRestResolver()
 s3_client = boto3.client("s3")
 dynamodb = boto3.resource("dynamodb")
 metadata_table = dynamodb.Table(os.environ["METADATA_TABLE"])
+job_table = dynamodb.Table(os.environ["INFERENCE_JOBS_TABLE"])
 sqs_client = boto3.client("sqs")
 BUCKET_NAME = os.environ["BUCKET_NAME"]
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
@@ -212,7 +213,7 @@ def create_batch_inference_job():
     # Write job to DynamoDB
     try:
         current_time = int(time.time())
-        metadata_table.put_item(
+        job_table.put_item(
             Item={
                 "user_id": user_id,
                 "job_id": job_id,
@@ -224,7 +225,7 @@ def create_batch_inference_job():
         )
     except ClientError as e:
         error_code = e.response["Error"]["Code"]
-        logger.error(f"DynamoDB error while creating job: {error_code}")
+        logger.error(f"DynamoDB error while creating job: {e}")
         if error_code == "ResourceNotFoundException":
             raise NotFoundError("Jobs table not found")
         elif error_code == "ProvisionedThroughputExceededException":
