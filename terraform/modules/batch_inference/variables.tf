@@ -9,3 +9,45 @@ variable "project_name" {
   type        = string
   nullable    = false
 }
+
+variable "lambda_storage_bucket" {
+  type     = string
+  nullable = false
+}
+
+variable "cognito_user_pool_id" {
+  type     = string
+  nullable = false
+}
+
+variable "user_files_bucket" {
+  type = object({
+    name = string
+    arn  = string
+  })
+  nullable = false
+}
+
+variable "inference_queue" {
+  type = object({
+    name = string
+    arn  = string
+  })
+  nullable = false
+}
+
+variable "jobs_status_table" {
+  type = object({
+    name = string
+    arn  = string
+  })
+  nullable = false
+}
+
+variable "output_bucket" {
+  type = object({
+    name = string
+    arn  = string
+  })
+
+}
