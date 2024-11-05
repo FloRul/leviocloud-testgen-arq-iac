@@ -68,6 +68,7 @@ module "lambda_router" {
       actions = [
         "sqs:ReceiveMessage",
         "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes"
       ],
       resources = [
         var.inference_queue.arn
