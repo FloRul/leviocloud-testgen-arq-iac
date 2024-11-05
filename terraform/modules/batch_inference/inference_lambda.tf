@@ -3,6 +3,7 @@
 }
 data "aws_region" "current" {}
 data "aws_organizations_organization" "this" {}
+
 module "lambda_router" {
   source        = "terraform-aws-modules/lambda/aws"
   function_name = "${var.project_name}-${var.environment}-${local.lambda_name}"
@@ -84,4 +85,10 @@ module "lambda_router" {
       ]
     }
   }
+}
+
+resource "aws_lambda_event_source_mapping" "sqs" {
+  event_source_arn = var.inference_queue.arn
+  function_name    = module.lambda_router.lambda_function_name
+  batch_size       = 1
 }

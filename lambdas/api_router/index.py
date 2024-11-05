@@ -242,6 +242,7 @@ def create_batch_inference_job():
                 "user_id": user_id,
                 "job_id": job_id,
                 "status": "PENDING",
+                "prompt": prompt,
                 "input_files": files,
                 "created_at": current_time,
                 "updated_at": current_time,
