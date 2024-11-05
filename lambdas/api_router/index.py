@@ -30,6 +30,13 @@ sqs_client = boto3.client("sqs")
 BUCKET_NAME = os.environ["BUCKET_NAME"]
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "OPTIONS,POST,GET, DELETE",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Credentials": "true",
+}
+
 
 @app.get("/files")
 @tracer.capture_method
@@ -43,7 +50,7 @@ def list_files():
             KeyConditionExpression="user_id = :uid",
             ExpressionAttributeValues={":uid": user_id},
         )
-        return {"Items": response.get("Items", [])}
+        return {"headers": CORS_HEADERS, "files": response.get("Items", [])}
     except ClientError as e:
         logger.exception("Failed to list files")
         raise ServiceError(msg="Failed to retrieve files")
