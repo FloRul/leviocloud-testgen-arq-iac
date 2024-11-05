@@ -71,6 +71,6 @@ module "batch_inference" {
   user_files_bucket     = module.storage.user_files_bucket
   inference_queue       = module.batch_inference.inference_queue
   jobs_status_table     = module.batch_inference.inference_jobs_status_table
-  output_bucket         = module.storage.output_bucket
+  output_bucket         = module.storage.file_process_output_bucket
 }
 

@@ -1,7 +1,7 @@
 ﻿locals {
   lambda_name = "inference-lambda"
 }
-
+data "aws_region" "current" {}
 module "lambda_router" {
   source        = "terraform-aws-modules/lambda/aws"
   function_name = "${var.project_name}-${var.environment}-${local.lambda_name}"
