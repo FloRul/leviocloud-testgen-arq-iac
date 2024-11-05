@@ -31,7 +31,6 @@ paths:
           description: Unauthorized
         "500":
           description: Internal server error
-
     options:
       responses:
         200:
@@ -57,7 +56,7 @@ paths:
         passthroughBehavior: "never"
         responses:
           default:
-            statusCode: 200
+            statusCode: "200"
             responseParameters:
               method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,DELETE'"
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
