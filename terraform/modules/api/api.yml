@@ -55,8 +55,7 @@ paths:
         requestTemplates:
           application/json: '{"statusCode": 200}'
         responses:
-          default:
-            statusCode: 200
+          "200":
             responseParameters:
               method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,DELETE'"
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
