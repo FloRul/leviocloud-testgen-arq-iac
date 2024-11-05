@@ -1,9 +1,0 @@
-{
-    "Auth": {
-        "Cognito": {
-            "identityPoolId": "ca-central-1:4bbae109-5083-4300-8368-a8905b92f0f7",
-            "userPoolClientId": "4j9v08ni345r1masnlh8bnoik",
-            "userPoolId": "ca-central-1_fuT9Uqhn9"
-        }
-    }
-}

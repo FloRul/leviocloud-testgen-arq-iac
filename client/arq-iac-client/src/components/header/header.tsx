@@ -24,8 +24,7 @@ const Header: React.FC<HeaderProps> = ({ signOut }) => {
             <div className="mr-0 ml-auto flex items-center space-x-4 xs:space-x-6">
               <ul className="mb-0 text-center inline-block">
                 <li className="mb-1 last:mb-0">
-                  <a
-                    href="javascript:void(0);"
+                  <button
                     id="langFr"
                     className={`group h-extend-cursor-area relative rounded-md h-8 w-9 flex justify-center items-center font-extrabold cursor-pointer ${
                       language === "fr"
@@ -38,11 +37,10 @@ const Header: React.FC<HeaderProps> = ({ signOut }) => {
                     <span className="pf-button-label group-hover:bg-visible-line">
                       Fr
                     </span>
-                  </a>
+                  </button>
                 </li>
                 <li className="mb-1 last:mb-0">
-                  <a
-                    href="javascript:void(0);"
+                  <button
                     id="langEn"
                     className={`group h-extend-cursor-area relative rounded-md h-8 w-9 flex justify-center items-center font-extrabold cursor-pointer ${
                       language === "en"
@@ -55,7 +53,7 @@ const Header: React.FC<HeaderProps> = ({ signOut }) => {
                     <span className="pf-button-label group-hover:bg-visible-line">
                       En
                     </span>
-                  </a>
+                  </button>
                 </li>
               </ul>
 

@@ -2,15 +2,28 @@ import type { WithAuthenticatorProps } from "@aws-amplify/ui-react";
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import { Amplify } from "aws-amplify";
-import config from "./amplifyconfiguration.json";
+import { useEffect } from "react";
+import config from "../amplifyconfiguration.json";
+import { FileProvider } from "./components/file-context/file-context";
 import FileList from "./components/file-list/file-list";
 import FileUploader from "./components/file-uploader/file-uploader";
 import Header from "./components/header/header";
 import ModelSelector from "./components/model-selector/model-selector";
+import { getIdToken } from "./utils/auth-utils";
 Amplify.configure(config);
 
 export function App({ signOut, user }: WithAuthenticatorProps) {
-  console.log({ user });
+  const handleGetIdToken = async () => {
+    const idToken = await getIdToken();
+    console.log("ID Token:", idToken);
+    // Utilisez idToken pour vos appels API ici
+  };
+  useEffect(() => {
+    if (user) {
+      handleGetIdToken();
+    }
+  }, [user]);
+
   return (
     <>
       <Header signOut={signOut} />
@@ -48,10 +61,11 @@ export function App({ signOut, user }: WithAuthenticatorProps) {
               <div className="pf-form-section pt-10 first:pt-0">
                 <div className="grid grid-cols-1 gap-8 sm:grid-cols-6">
                   <ModelSelector />
+                  <FileProvider>
+                    <FileUploader />
 
-                  <FileUploader />
-
-                  <FileList files={[]} />
+                    <FileList />
+                  </FileProvider>
                 </div>
               </div>
             </div>

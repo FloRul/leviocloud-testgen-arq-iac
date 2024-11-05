@@ -9,6 +9,7 @@ export const languages = {
     "source-code-label": "Source Code",
     "source-code-file-span":
       "Maximum size exceeded. Maximum size allowed is 10 Mb.",
+    "invalid-file-type": "The selected file type is not allowed.",
     "upload-label": "Upload Source Code File",
     "upload-button-span": "Upload Source Code File",
     "prompt-label": "Prompt",
@@ -19,6 +20,8 @@ export const languages = {
     },
     "response-label": "Response",
     "generate-button-span": "Generate",
+    "download-file-button-span": "Download file",
+    "delete-file-button-span": "Delete the selected files",
     "download-button-span": "Download Response",
     "loading-span": "Loading...",
     "last-name-label": "Last Name",
@@ -102,6 +105,10 @@ export const languages = {
     "privacy-choices-href": {
       text: "Your Privacy Choices",
     },
+
+    "select-file": "Select",
+    "file-name": "File name",
+    "file-last-update": "Last update",
     welcome: "Welcome",
     demo:
       "Levio's Valet, a Chatbot-type tool integrated into a web page, stands out not only for its ability to interact in natural language, but also for its constant availability: it is accessible 24 hours a day, 365 days a year. Additionally, this automated valet can communicate in multiple languages, regardless of the source documents' language. This versatility makes the tool particularly accessible to a wide range of users." +
@@ -122,6 +129,7 @@ export const languages = {
     "source-code-label": "Code Source",
     "source-code-file-span":
       "Taille maximale dépassée. La taille maximale autorisée est de 10 Mo.",
+    "invalid-file-type": "Le type de fichier sélectionné n'est pas autorisé.",
     "upload-label": "Télécharger Le Fichier De Code Source",
     "upload-button-span": "Télécharger Les Fichiers De Code Source",
     "prompt-label": "Prompt",
@@ -134,7 +142,7 @@ export const languages = {
     "response-label": "Réponse",
     "generate-button-span": "Générer",
     "download-file-button-span": "Télécharger le fichier",
-    "delete-file-button-span": "Supprimer le fichier",
+    "delete-file-button-span": "Supprimer le ou les fichiers selectionnés",
     "download-button-span": "Télécharger la réponse",
     "loading-span": "Chargement...",
     "last-name-label": "Nom",
@@ -218,6 +226,9 @@ export const languages = {
     "privacy-choices-href": {
       text: "Vos choix en matière de confidentialité",
     },
+    "select-file": "Sélectionner",
+    "file-name": "Nom du fichier",
+    "file-last-update": "Date de modification",
     welcome: "Bienvenue",
     demo:
       "Le Valet de Levio, un outil de clavardage de type dialogueur (chatbot) intégré à une page web, se distingue non seulement par sa capacité à interagir en langage naturel, mais aussi par sa disponibilité constante : il est accessible 24 heures sur 24, 365 jours par année. De plus, ce valet automatisé peut communiquer dans plusieurs langues, indépendamment de la langue des documents sources. Cela rend l'outil particulièrement polyvalent et accessible à un large éventail d'utilisateurs." +
