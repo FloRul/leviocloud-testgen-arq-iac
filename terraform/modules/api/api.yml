@@ -24,13 +24,13 @@ paths:
         httpMethod: POST
         type: aws_proxy
         passthroughBehavior: when_no_match
-        responses:
-          "200":
-            description: Successfully retrieved file list
-          "403":
-            description: Unauthorized
-          "500":
-            description: Internal server error
+      responses:
+        "200":
+          description: Successfully retrieved file list
+        "403":
+          description: Unauthorized
+        "500":
+          description: Internal server error
 
     options:
       responses:
