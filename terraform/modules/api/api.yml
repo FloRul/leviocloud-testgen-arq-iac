@@ -205,5 +205,36 @@ paths:
           description: Job not found
         "500":
           description: Internal server error
+  /jobs/{job_id}/download/{file_id}:
+    get:
+      summary: Download a specific file
+      security:
+        - UserPool: []
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+      x-amazon-apigateway-integration:
+        uri: arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${lambda_arn}/invocations
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: when_no_match
+      responses:
+        "200":
+          description: Successfully retrieved file
+        "403":
+          description: Unauthorized
+        "404":
+          description: File not found
+        "500":
+          description: Internal server error
+
 x-amazon-apigateway-binary-media-types:
   - "*/*"

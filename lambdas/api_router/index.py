@@ -274,6 +274,54 @@ def create_batch_inference_job():
     )
 
 
+@app.get("/jobs/<job_id>/download/<file_id>")
+@tracer.capture_method
+def get_download_url(job_id: str, file_id: str):
+    user_id = app.current_event.request_context.authorizer.claims.get("sub")
+    if not user_id:
+        raise UnauthorizedError("User ID not found in claims")
+
+    try:
+        # Retrieve the job record from DynamoDB
+        job_response = job_table.get_item(Key={"user_id": user_id, "job_id": job_id})
+        if "Item" not in job_response:
+            raise NotFoundError(f"Job {job_id} not found")
+
+        # Check if the file is part of the job
+        file_found = False
+        for file in job_response["Item"]["input_files"]:
+            if file["file_id"] == file_id:
+                file_found = True
+                break
+        if not file_found:
+            raise NotFoundError(f"File {file_id} not found in job {job_id}")
+
+        # Generate a presigned URL for the file
+        s3_key = f"{user_id}/{file_id}.txt"
+        presigned_url = s3_client.generate_presigned_url(
+            ClientMethod="get_object",
+            Params={"Bucket": BUCKET_NAME, "Key": s3_key},
+            ExpiresIn=600,
+        )
+
+        return Response(
+            status_code=200,
+            headers=CORS_HEADERS,
+            body=json.dumps({"presigned_url": presigned_url}),
+        )
+    except ClientError as e:
+        error_code = e.response["Error"]["Code"]
+        logger.error(f"AWS error during download URL generation: {error_code}")
+        if error_code == "NoSuchKey":
+            raise NotFoundError(f"File {file_id} not found")
+        raise ServiceError(msg="Failed to generate download URL")
+    except Exception as e:
+        logger.exception(
+            f"Error generating download URL for file {file_id} in job {job_id}"
+        )
+        raise ServiceError(msg="Failed to generate download URL")
+
+
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.API_GATEWAY_REST)
 @tracer.capture_lambda_handler
 def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> Dict[str, Any]:
