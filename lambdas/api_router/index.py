@@ -6,7 +6,7 @@ from typing import Dict, Any, List
 import time
 import boto3
 from aws_lambda_powertools import Logger, Tracer, Metrics
-from aws_lambda_powertools.event_handler import APIGatewayRestResolver
+from aws_lambda_powertools.event_handler import APIGatewayRestResolver, Response
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from aws_lambda_powertools.logging import correlation_paths
 from botocore.exceptions import ClientError
@@ -50,7 +50,11 @@ def list_files():
             KeyConditionExpression="user_id = :uid",
             ExpressionAttributeValues={":uid": user_id},
         )
-        return {"headers": CORS_HEADERS, "files": response.get("Items", [])}
+        return Response(
+            status_code=200,
+            headers=CORS_HEADERS,
+            body=json.dumps(response["Items"]),
+        )
     except ClientError as e:
         logger.exception("Failed to list files")
         raise ServiceError(msg="Failed to retrieve files")
@@ -103,7 +107,11 @@ def upload_file():
 
         metadata_table.put_item(Item=metadata)
 
-        return {"message": "File uploaded successfully", "metadata": metadata}
+        return Response(
+            status_code=200,
+            headers=CORS_HEADERS,
+            body=json.dumps(metadata),
+        )
     except ClientError as e:
         error_code = e.response["Error"]["Code"]
         logger.error(f"AWS error during upload: {error_code}")
@@ -134,7 +142,7 @@ def delete_file(file_id: str):
         # Delete metadata
         metadata_table.delete_item(Key={"user_id": user_id, "file_id": file_id})
 
-        return {"message": "File deleted successfully"}
+        return Response(status_code=204, headers=CORS_HEADERS)
     except ClientError as e:
         error_code = e.response["Error"]["Code"]
         logger.error(f"AWS error during deletion: {error_code}")
@@ -241,13 +249,17 @@ def create_batch_inference_job():
             )
         raise ServiceError(msg="Failed to create job record")
 
-    return {
-        "statusCode": 201,
-        "message": "Job created successfully",
-        "job_id": job_id,
-        "status": "PENDING",
-        "file_count": len(files),
-    }
+    return Response(
+        status_code=201,
+        headers=CORS_HEADERS,
+        body=json.dumps(
+            {
+                "job_id": job_id,
+                "status": "PENDING",
+                "input_files": files,
+            }
+        ),
+    )
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.API_GATEWAY_REST)
