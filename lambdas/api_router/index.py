@@ -16,6 +16,7 @@ from aws_lambda_powertools.event_handler.exceptions import (
     ServiceError,
     UnauthorizedError,
 )
+import hashlib
 
 logger = Logger()
 tracer = Tracer()
@@ -85,8 +86,8 @@ def upload_file():
     )
     filename = app.current_event.headers.get("filename", "unnamed-file")
 
-    # Generate unique file_id
-    file_id = str(uuid.uuid4())
+    # Generate file_id as the hash of the filename
+    file_id = hashlib.sha256(filename.encode()).hexdigest()
     key = f"{user_id}/{file_id}"
 
     try:
@@ -95,7 +96,7 @@ def upload_file():
             Bucket=BUCKET_NAME, Key=key, Body=file_content, ContentType=content_type
         )
 
-        # Store metadata
+        # Prepare metadata
         metadata = {
             "user_id": user_id,
             "file_id": file_id,
@@ -103,15 +104,20 @@ def upload_file():
             "content_type": content_type,
             "size": len(file_content),
             "s3_key": key,
+            "last_modified": int(time.time()),
         }
 
-        metadata_table.put_item(Item=metadata)
+        # Upsert in DynamoDB
+        metadata_table.put_item(
+            Item=metadata,
+        )
 
         return Response(
             status_code=200,
             headers=CORS_HEADERS,
             body=json.dumps(metadata),
         )
+
     except ClientError as e:
         error_code = e.response["Error"]["Code"]
         logger.error(f"AWS error during upload: {error_code}")
@@ -203,6 +209,11 @@ def create_batch_inference_job():
     if not files:
         raise NotFoundError("None of the specified files were found")
 
+    # Validate prompt
+    prompt = body.get("prompt")
+    if not prompt:
+        raise BadRequestError("Prompt is required")
+
     # Send SQS message
     try:
         message_body = {
@@ -210,6 +221,7 @@ def create_batch_inference_job():
             "job_id": job_id,
             "status": "PENDING",
             "input_files": files,
+            "prompt": body,
         }
 
         sqs_client.send_message(
