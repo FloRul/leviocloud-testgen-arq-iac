@@ -266,6 +266,7 @@ def create_batch_inference_job():
                 "job_id": job_id,
                 "status": "PENDING",
                 "input_files": files,
+                "prompt": prompt,
             }
         ),
     )
