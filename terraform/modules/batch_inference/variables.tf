@@ -15,11 +15,6 @@ variable "lambda_storage_bucket" {
   nullable = false
 }
 
-variable "cognito_user_pool_id" {
-  type     = string
-  nullable = false
-}
-
 variable "user_files_bucket" {
   type = object({
     name = string

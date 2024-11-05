@@ -66,5 +66,11 @@ module "batch_inference" {
   source       = "./modules/batch_inference"
   environment  = var.environment
   project_name = local.project_name
+
+  lambda_storage_bucket = aws_s3_bucket.code_storage.id
+  user_files_bucket     = module.storage.user_files_bucket
+  inference_queue       = module.batch_inference.inference_queue
+  jobs_status_table     = module.batch_inference.inference_jobs_status_table
+  output_bucket         = module.storage.output_bucket
 }
 
