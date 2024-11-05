@@ -18,7 +18,8 @@ module "lambda_router" {
   trigger_on_package_timestamp = false
   environment_variables = {
     METADATA_TABLE          = var.metadata_table.name
-    BUCKET_NAME             = var.user_files_bucket.name
+    INPUT_BUCKET_NAME       = var.user_files_bucket.name
+    OUTPUT_BUCKET_NAME      = var.output_bucket.name
     POWERTOOLS_SERVICE_NAME = "${var.project_name}-${var.environment}-${local.lambda_name}"
     INFERENCE_QUEUE_URL     = var.inference_queue.name
     INFERENCE_JOBS_TABLE    = var.jobs_status_table.name
@@ -28,7 +29,7 @@ module "lambda_router" {
   attach_policy_statements = true
 
   policy_statements = {
-    s3_files = {
+    s3_files_input = {
       effect = "Allow",
       actions = [
         "s3:GetObject",
@@ -39,6 +40,18 @@ module "lambda_router" {
       resources = [
         var.user_files_bucket.arn,
         "${var.user_files_bucket.arn}/*"
+      ]
+    }
+    s3_files_output = {
+      effect = "Allow",
+      actions = [
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:PutObject"
+      ],
+      resources = [
+        var.output_bucket.arn,
+        "${var.output_bucket.arn}/*"
       ]
     }
     dynamodb_metadata = {

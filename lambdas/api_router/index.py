@@ -10,6 +10,7 @@ from aws_lambda_powertools.event_handler import APIGatewayRestResolver, Response
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from aws_lambda_powertools.logging import correlation_paths
 from botocore.exceptions import ClientError
+from boto3.dynamodb.conditions import Key
 from aws_lambda_powertools.event_handler.exceptions import (
     BadRequestError,
     NotFoundError,
@@ -28,7 +29,8 @@ dynamodb = boto3.resource("dynamodb")
 metadata_table = dynamodb.Table(os.environ["METADATA_TABLE"])
 job_table = dynamodb.Table(os.environ["INFERENCE_JOBS_TABLE"])
 sqs_client = boto3.client("sqs")
-BUCKET_NAME = os.environ["BUCKET_NAME"]
+INPUT_BUCKET_NAME = os.environ["INPUT_BUCKET_NAME"]
+OUTPUT_BUCKET_NAME = os.environ["OUTPUT_BUCKET_NAME"]
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 CORS_HEADERS = {
@@ -93,7 +95,10 @@ def upload_file():
     try:
         # Upload to S3
         s3_client.put_object(
-            Bucket=BUCKET_NAME, Key=key, Body=file_content, ContentType=content_type
+            Bucket=INPUT_BUCKET_NAME,
+            Key=key,
+            Body=file_content,
+            ContentType=content_type,
         )
 
         # Prepare metadata
@@ -143,7 +148,7 @@ def delete_file(file_id: str):
         s3_key = response["Item"]["s3_key"]
 
         # Delete from S3
-        s3_client.delete_object(Bucket=BUCKET_NAME, Key=s3_key)
+        s3_client.delete_object(Bucket=INPUT_BUCKET_NAME, Key=s3_key)
 
         # Delete metadata
         metadata_table.delete_item(Key={"user_id": user_id, "file_id": file_id})
@@ -274,6 +279,27 @@ def create_batch_inference_job():
     )
 
 
+@app.get("/jobs")
+@tracer.capture_method
+def list_jobs():
+    user_id = app.current_event.request_context.authorizer.claims.get("sub")
+    if not user_id:
+        raise UnauthorizedError("User ID not found in claims")
+
+    try:
+        # Retrieve all jobs for the user
+        response = job_table.query(KeyConditionExpression=Key("user_id").eq(user_id))
+
+        return Response(
+            status_code=200,
+            headers=CORS_HEADERS,
+            body=json.dumps([item for item in response["Items"]]),
+        )
+    except ClientError as e:
+        logger.exception("Failed to list jobs")
+        raise ServiceError(msg="Failed to retrieve jobs")
+
+
 @app.get("/jobs/<job_id>/download/<file_id>")
 @tracer.capture_method
 def get_download_url(job_id: str, file_id: str):
@@ -300,7 +326,7 @@ def get_download_url(job_id: str, file_id: str):
         s3_key = f"{user_id}/{file_id}.txt"
         presigned_url = s3_client.generate_presigned_url(
             ClientMethod="get_object",
-            Params={"Bucket": BUCKET_NAME, "Key": s3_key},
+            Params={"Bucket": OUTPUT_BUCKET_NAME, "Key": s3_key},
             ExpiresIn=600,
         )
 
