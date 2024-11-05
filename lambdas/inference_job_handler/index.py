@@ -2,7 +2,7 @@
 import os
 import boto3
 import re
-from typing import Optional, Dict, Any
+from typing import List, Optional, Dict, Any
 from aws_lambda_powertools import Logger, Tracer, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
 from aws_lambda_powertools.utilities.batch import (
@@ -25,6 +25,8 @@ metrics = Metrics()
 # Get clients using utility function
 s3_client = boto3.client("s3")
 bedrock_client = boto3.client("bedrock-runtime")
+dynamodb = boto3.resource("dynamodb")
+job_table = dynamodb.Table(os.environ["INFERENCE_JOBS_TABLE"])
 
 
 # Configuration
@@ -39,7 +41,6 @@ class Config:
     MAX_BEDROCK_CALL_AMOUNT = 7
     INPUT_BUCKET = os.environ["INPUT_BUCKET"]
     OUTPUT_BUCKET = os.environ["OUTPUT_BUCKET"]
-    JOBS_TABLE = os.environ["INFERENCE_JOBS_TABLE"]
 
 
 @tracer.capture_method
@@ -113,95 +114,107 @@ def call_bedrock(
 
 
 @tracer.capture_method
-def process_file(bucket: str, key: str, prompt: str) -> Dict[str, Any]:
-    """Process a single file from S3."""
-    try:
-        # Get file from S3
-        logger.info(f"Processing file: {key}")
-        metrics.add_metric(name="FilesProcessed", unit=MetricUnit.Count, value=1)
+def process_file(
+    file_content: str, prompt: str, job_id: str, file_id: str
+) -> Dict[str, Any]:
+    """Process a single file content."""
 
-        s3_response = s3_client.get_object(Bucket=bucket, Key=key)
-        file_content = s3_response["Body"].read().decode("utf-8")
+    system_prompt = prompt + Config.INSTRUCTIONS
 
-        system_prompt = prompt + Config.INSTRUCTIONS
+    output = file_content
+    call_count = 0
+    valid_response = False
 
-        output = file_content
-        call_count = 0
-        valid_response = False
+    # Loop for Bedrock API calls
+    while call_count < Config.MAX_BEDROCK_CALL_AMOUNT and not valid_response:
+        with tracer.provider.in_subsegment("bedrock_call") as subsegment:
+            logger.info(f"Bedrock API call attempt {call_count + 1}")
+            subsegment.put_annotation("attempt", call_count + 1)
 
-        # Loop for Bedrock API calls
-        while call_count < Config.MAX_BEDROCK_CALL_AMOUNT and not valid_response:
-            with tracer.provider.in_subsegment("bedrock_call") as subsegment:
-                logger.info(f"Bedrock API call attempt {call_count + 1}")
-                subsegment.put_annotation("attempt", call_count + 1)
-
-                bedrock_response = call_bedrock(
-                    system_prompt,
-                    output,
-                    Config.DEFAULT_MODEL,
-                )
-                output += bedrock_response
-                call_count += 1
-
-                extracted_response = extract_formatted_response(output)
-                if extracted_response:
-                    valid_response = True
-                    output = extracted_response
-
-                logger.info(f"Bedrock API call attempt {call_count}")
-
-        if not valid_response:
-            logger.warning(
-                f"Failed to get valid response for {key} after "
-                f"{Config.MAX_BEDROCK_CALL_AMOUNT} attempts"
+            bedrock_response = call_bedrock(
+                system_prompt,
+                output,
+                Config.DEFAULT_MODEL,
             )
-            metrics.add_metric(name="FailedResponses", unit=MetricUnit.Count, value=1)
+            output += bedrock_response
+            call_count += 1
 
-        # Store response in S3
-        response_key = f"{key}-response.txt"
-        s3_client.put_object(
-            Bucket=Config.OUTPUT_BUCKET,
-            Key=response_key,
-            Body=("<prompt>" + prompt + "</prompt>\n" + output).encode("utf-8"),
+            extracted_response = extract_formatted_response(output)
+            if extracted_response:
+                valid_response = True
+                output = extracted_response
+
+            logger.info(f"Bedrock API call attempt {call_count}")
+
+    if not valid_response:
+        logger.warning(
+            f"Failed to get valid response for file after "
+            f"{Config.MAX_BEDROCK_CALL_AMOUNT} attempts"
         )
+        metrics.add_metric(name="FailedResponses", unit=MetricUnit.Count, value=1)
 
-        result = {
-            "fileName": key,
-            "status": "success" if valid_response else "failed",
-            "responseKey": response_key,
-            "callCount": call_count,
-        }
+    # Store response in S3
+    result_key = f"{job_id}/{file_id}.txt"
+    s3_client.put_object(
+        Bucket=Config.OUTPUT_BUCKET,
+        Key=result_key,
+        Body=(output).encode("utf-8"),
+    )
 
-        return result
+    result = {
+        "resultKey": result_key,
+        "status": "success" if valid_response else "failed",
+        "callCount": call_count,
+    }
 
-    except ClientError as e:
-        logger.exception(f"AWS Error processing file {key}")
-        metrics.add_metric(name="AWSErrors", unit=MetricUnit.Count, value=1)
-        error_result = {
-            "fileName": key,
-            "status": "error",
-            "error": f"AWS Error: {str(e)}",
-        }
-        return error_result
-
-    except Exception as e:
-        logger.exception(f"Error processing file {key}")
-        metrics.add_metric(name="ProcessingErrors", unit=MetricUnit.Count, value=1)
-        error_result = {
-            "fileName": key,
-            "status": "error",
-            "error": str(e),
-        }
-        return error_result
+    return result
 
 
 @tracer.capture_method
 def record_handler(record: SQSRecord):
-
-    payload: str = (
-        record.json_body
-    )  # if json string data, otherwise record.body for str
+    payload = record.json_body
     logger.info(payload)
+    job_id = payload.get("job_id")
+    job_table.update_item(
+        Key={"job_id": job_id, "user_id": payload.get("user_id")},
+        UpdateExpression="SET status=:s",
+        ExpressionAttributeValues={":s": "PROCESSING"},
+    )
+    try:
+        # extract file ids list
+        file_keys = [file["s3_key"] for file in payload["files"]]
+
+        # extract prompt
+        prompt = payload["prompt"]
+
+        # retrieve files
+        for key in file_keys:
+            file_content = (
+                s3_client.get_object(Bucket=Config.INPUT_BUCKET, Key=key)["Body"]
+                .read()
+                .decode("utf-8")
+            )
+            error_code = e.response["Error"]["Code"]
+            if error_code == "NoSuchKey":
+                logger.warning(f"File {key} not found")
+
+            # process file
+            process_file(
+                file_content=file_content, prompt=prompt, job_id=job_id, file_id=key
+            )
+
+        job_table.update_item(
+            Key={"job_id": job_id, "user_id": payload.get("user_id")},
+            UpdateExpression="SET status=:s",
+            ExpressionAttributeValues={":s": "COMPLETED"},
+        )
+    except Exception as e:
+        logger.error(f"Error processing job {job_id}: {str(e)}")
+        job_table.update_item(
+            Key={"job_id": job_id},
+            UpdateExpression="SET status=:s, error=:e",
+            ExpressionAttributeValues={":s": "ERROR", ":e": str(e)},
+        )
 
 
 @logger.inject_lambda_context

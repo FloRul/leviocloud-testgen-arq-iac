@@ -246,6 +246,7 @@ def create_batch_inference_job():
                 "input_files": files,
                 "created_at": current_time,
                 "updated_at": current_time,
+                "error": "",
             }
         )
     except ClientError as e:
