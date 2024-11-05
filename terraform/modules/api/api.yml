@@ -34,7 +34,7 @@ paths:
 
     options:
       responses:
-        "200":
+        200:
           description: "200 response"
           headers:
             Access-Control-Allow-Origin:
@@ -54,6 +54,7 @@ paths:
         type: "mock"
         requestTemplates:
           application/json: '{"statusCode": 200}'
+        passthroughBehavior: "never"
         responses:
           default:
             statusCode: 200
