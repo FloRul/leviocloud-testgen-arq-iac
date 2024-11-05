@@ -8,7 +8,7 @@ module "lambda_router" {
   description   = "Lambda function for API Gateway"
   handler       = "index.lambda_handler"
   runtime       = "python3.11"
-  timeout       = 900
+  timeout       = 90
   publish       = true
   source_path   = "../lambdas/api_router"
 

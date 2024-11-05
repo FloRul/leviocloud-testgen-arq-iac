@@ -2,8 +2,11 @@
   value = module.file_upload.s3_bucket_id
 }
 
-output "file_process_output_bucket_name" {
-  value = module.file_process_output.s3_bucket_id
+output "file_process_output_bucket" {
+  value = {
+    name = module.file_process_output.s3_bucket_id,
+    arn  = module.file_process_output.s3_bucket_arn
+  }
 }
 
 output "metadata_table" {
