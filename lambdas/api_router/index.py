@@ -188,13 +188,10 @@ def create_batch_inference_job():
     if not app.current_event.body:
         raise BadRequestError("Request body is required")
 
-    body = app.current_event.body
-
-    if app.current_event.is_base64_encoded:
-        body = base64.b64decode(body).decode("utf-8")
+    body = app.current_event.json_body
 
     try:
-        file_list = json.loads(body)
+        file_list = body.get("files")
     except json.JSONDecodeError:
         raise BadRequestError("Invalid JSON format in request body")
 
