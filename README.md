@@ -51,7 +51,7 @@ The project is deployed using AWS CloudFormation and the Serverless Application 
 sequenceDiagram
     participant User
     participant APIGateway
-    participant APILambda
+    participant Api router lambda
     participant DynamoDBMetadata
     participant S3InputBucket
     participant SQS
@@ -61,14 +61,14 @@ sequenceDiagram
     participant BedrockAPI
 
     User->>APIGateway: Upload file
-    APIGateway->>APILambda: Handle upload
-    APILambda->>DynamoDBMetadata: Store file metadata
-    APILambda->>S3InputBucket: Upload file
+    APIGateway->>Api router lambda: Handle upload
+    Api router lambda->>DynamoDBMetadata: Store file metadata
+    Api router lambda->>S3InputBucket: Upload file
     User->>APIGateway: Create inference job
-    APIGateway->>APILambda: Handle job creation
-    APILambda->>DynamoDBMetadata: Retrieve file metadata
-    APILambda->>SQS: Send job message
-    APILambda->>DynamoDBJobs: Store job record
+    APIGateway->>Api router lambda: Handle job creation
+    Api router lambda->>DynamoDBMetadata: Retrieve file metadata
+    Api router lambda->>SQS: Send job message
+    Api router lambda->>DynamoDBJobs: Store job record
     SQS->>InferenceLambda: Trigger inference
     InferenceLambda->>DynamoDBJobs: Update job status
     InferenceLambda->>S3InputBucket: Retrieve input files
@@ -77,10 +77,18 @@ sequenceDiagram
     InferenceLambda->>S3OutputBucket: Store processed files
     InferenceLambda->>DynamoDBJobs: Update job status
     User->>APIGateway: Get job status
-    APIGateway->>APILambda: Handle job status
-    APILambda->>DynamoDBJobs: Retrieve job record
+    APIGateway->>Api router lambda: Handle job status
+    Api router lambda->>DynamoDBJobs: Retrieve job record
     User->>APIGateway: Download processed file
-    APIGateway->>APILambda: Handle file download
-    APILambda->>DynamoDBJobs: Retrieve job record
-    APILambda->>S3OutputBucket: Generate presigned URL
+    APIGateway->>Api router lambda: Handle file download
+    Api router lambda->>DynamoDBJobs: Retrieve job record
+    Api router lambda->>S3OutputBucket: Generate presigned URL
 ```
+
+This diagram shows the interactions between the different components of the application, including the user, API Gateway, Lambda functions, DynamoDB tables, S3 buckets, SQS queue, and the Bedrock AI API.
+
+The flow starts with the user uploading a file through the API Gateway, which triggers the API Lambda function to store the file metadata in DynamoDB and upload the file to the S3 Input Bucket. The user then creates an inference job, which is processed by the API Lambda function, and the job request is sent to the SQS queue.
+
+The Inference Lambda function is triggered by the SQS queue, retrieves the input files from the S3 Input Bucket, calls the Bedrock AI API for processing, and stores the processed files in the S3 Output Bucket. The job status is updated in the DynamoDB Jobs table at various stages.
+
+The user can then check the job status and download the processed files through the API Gateway, which interacts with the API Lambda function to retrieve the necessary information from DynamoDB and generate a pre-signed URL for the file download from the S3 Output Bucket.
