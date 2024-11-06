@@ -10,9 +10,12 @@ variable "project_name" {
   nullable    = false
 }
 
-variable "s3_bucket_id" {
+variable "s3_bucket" {
   description = "The ID of the S3 bucket"
-  type        = string
+  type = object({
+    name = string
+    arn  = string
+  })
 }
 
 variable "s3_bucket_regional_domain_name" {

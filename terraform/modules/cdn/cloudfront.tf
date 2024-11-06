@@ -9,7 +9,7 @@ resource "aws_cloudfront_distribution" "this" {
   # Configure the origin for the S3 bucket
   origin {
     domain_name = var.s3_bucket_regional_domain_name
-    origin_id   = "s3-${var.s3_bucket_id}"
+    origin_id   = "s3-${var.s3_bucket.name}"
 
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_control.this.id
@@ -34,7 +34,7 @@ resource "aws_cloudfront_distribution" "this" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "s3-${var.s3_bucket_id}"
+    target_origin_id = "s3-${var.s3_bucket.name}"
 
     forwarded_values {
       query_string = false
@@ -80,4 +80,37 @@ resource "aws_cloudfront_distribution" "this" {
   viewer_certificate {
     cloudfront_default_certificate = true
   }
+}
+
+# S3 bucket policy for CloudFront OAC
+resource "aws_s3_bucket_policy" "bucket_policy" {
+  bucket = var.s3_bucket.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontServicePrincipal"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = ["${var.s3_bucket.arn}/*"]
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.this.arn
+          }
+        }
+      }
+    ]
+  })
+}
+
+# Create Origin Access Control
+resource "aws_cloudfront_origin_access_control" "this" {
+  name                              = "${var.project_name}-${var.environment}-oac"
+  description                       = "OAC for S3 bucket access"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
 }
