@@ -75,3 +75,4 @@ module "batch_inference" {
   output_bucket         = module.storage.file_process_output_bucket
 }
 
+"3c8d05d8-b091-708a-5ac1-2e53a17f3dab/a4868da3-fda8-4096-a7cb-ad633736866d/4f8c126e279c1b3ad44eed9c56acbc0e1ac7ff60afc8529276918e2ed470234f.txt"

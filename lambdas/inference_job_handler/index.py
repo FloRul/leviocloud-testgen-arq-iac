@@ -178,15 +178,15 @@ def record_handler(record: SQSRecord):
     )
     try:
         # extract file ids list
-        file_keys = [file["s3_key"] for file in payload["input_files"]]
+        file_keys = [file["file_id"] for file in payload["input_files"]]
 
         # extract prompt
         prompt = payload["prompt"]
 
         # retrieve files
-        for key in file_keys:
+        for file_id in file_keys:
             file_content = (
-                s3_client.get_object(Bucket=Config.INPUT_BUCKET, Key=key)["Body"]
+                s3_client.get_object(Bucket=Config.INPUT_BUCKET, Key=f"{user_id}/{file_id}")["Body"]
                 .read()
                 .decode("utf-8")
             )
@@ -195,7 +195,7 @@ def record_handler(record: SQSRecord):
                 file_content=file_content,
                 prompt=prompt,
                 job_id=job_id,
-                file_id=key,
+                file_id=file_id,
                 user_id=user_id,
             )
 

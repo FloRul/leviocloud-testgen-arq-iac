@@ -108,7 +108,6 @@ def upload_file():
             "filename": filename,
             "content_type": content_type,
             "size": len(file_content),
-            "s3_key": key,
             "last_modified": int(time.time()),
         }
 
@@ -272,9 +271,9 @@ def create_batch_inference_job():
             {
                 "job_id": job_id,
                 "status": "PENDING",
-                "input_files": files,
                 "prompt": prompt,
                 "created_at": current_time,
+                "input_files": files,
             }
         ),
     )
