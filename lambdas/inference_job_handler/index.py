@@ -15,7 +15,6 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 
 processor = BatchProcessor(event_type=EventType.SQS)
 from botocore.config import Config
-from botocore.exceptions import ClientError
 
 # Initialize Powertools
 logger = Logger()

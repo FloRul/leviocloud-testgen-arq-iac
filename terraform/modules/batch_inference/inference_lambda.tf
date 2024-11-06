@@ -57,6 +57,7 @@ module "lambda_router" {
       actions = [
         "s3:GetObject",
         "s3:ListBucket",
+        "s3:PutObject"
       ],
       resources = [
         var.output_bucket.arn,
@@ -95,7 +96,11 @@ module "lambda_router" {
 }
 
 resource "aws_lambda_event_source_mapping" "sqs" {
-  event_source_arn = var.inference_queue.arn
-  function_name    = module.lambda_router.lambda_function_name
-  batch_size       = 1
+  event_source_arn                   = var.inference_queue.arn
+  function_name                      = module.lambda_router.lambda_function_name
+  batch_size                         = 1
+  maximum_batching_window_in_seconds = 0
+
+  # Add error handling configuration
+  function_response_types = ["ReportBatchItemFailures"]
 }
