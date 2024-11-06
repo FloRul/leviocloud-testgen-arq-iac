@@ -92,3 +92,5 @@ The flow starts with the user uploading a file through the API Gateway, which tr
 The Inference Lambda function is triggered by the SQS queue, retrieves the input files from the S3 Input Bucket, calls the Bedrock AI API for processing, and stores the processed files in the S3 Output Bucket. The job status is updated in the DynamoDB Jobs table at various stages.
 
 The user can then check the job status and download the processed files through the API Gateway, which interacts with the API Lambda function to retrieve the necessary information from DynamoDB and generate a pre-signed URL for the file download from the S3 Output Bucket.
+
+![infra](./assets/arq-infra.png)
