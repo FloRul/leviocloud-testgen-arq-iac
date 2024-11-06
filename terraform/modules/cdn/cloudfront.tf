@@ -83,34 +83,34 @@ resource "aws_cloudfront_distribution" "this" {
 }
 
 # S3 bucket policy for CloudFront OAC
-# resource "aws_s3_bucket_policy" "bucket_policy" {
-#   bucket = var.s3_bucket.name
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Sid    = "AllowCloudFrontServicePrincipal"
-#         Effect = "Allow"
-#         Principal = {
-#           Service = "cloudfront.amazonaws.com"
-#         }
-#         Action   = "s3:GetObject"
-#         Resource = ["${var.s3_bucket.arn}/*"]
-#         Condition = {
-#           StringEquals = {
-#             "AWS:SourceArn" = aws_cloudfront_distribution.this.arn
-#           }
-#         }
-#       }
-#     ]
-#   })
-# }
+resource "aws_s3_bucket_policy" "bucket_policy" {
+  bucket = var.s3_bucket.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontServicePrincipal"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = ["${var.s3_bucket.arn}/*"]
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.this.arn
+          }
+        }
+      }
+    ]
+  })
+}
 
 # Create Origin Access Control
-# resource "aws_cloudfront_origin_access_control" "this" {
-#   name                              = "${var.project_name}-${var.environment}-oac"
-#   description                       = "OAC for S3 bucket access"
-#   origin_access_control_origin_type = "s3"
-#   signing_behavior                  = "always"
-#   signing_protocol                  = "sigv4"
-# }
+resource "aws_cloudfront_origin_access_control" "this" {
+  name                              = "${var.project_name}-${var.environment}-oac"
+  description                       = "OAC for S3 bucket access"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
