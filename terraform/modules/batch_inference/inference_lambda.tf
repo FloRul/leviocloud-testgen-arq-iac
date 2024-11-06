@@ -86,6 +86,11 @@ module "lambda_router" {
         "${var.jobs_status_table.arn}/index/*"
       ]
     }
+    bedrock = {
+      effect    = "Allow"
+      actions   = ["bedrock:InvokeModel"]
+      resources = ["*"]
+    }
   }
 }
 

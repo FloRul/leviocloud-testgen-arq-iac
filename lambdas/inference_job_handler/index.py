@@ -169,7 +169,7 @@ def record_handler(record: SQSRecord):
     job_id = payload.get("job_id")
     user_id = payload.get("user_id")
     job_table.update_item(
-        Key={"job_id": job_id, "user_id": user_id},
+        Key={"user_id": user_id, "job_id": job_id},
         UpdateExpression="SET job_status=:s",
         ExpressionAttributeValues={":s": "PROCESSING"},
     )
@@ -193,14 +193,14 @@ def record_handler(record: SQSRecord):
             )
 
         job_table.update_item(
-            Key={"job_id": job_id, "user_id": user_id},
+            Key={"user_id": user_id, "job_id": job_id},
             UpdateExpression="SET job_status=:s",
             ExpressionAttributeValues={":s": "COMPLETED"},
         )
     except Exception as e:
         logger.error(f"Error processing job {job_id}: {str(e)}")
         job_table.update_item(
-            Key={"job_id": job_id},
+            Key={"user_id": user_id, "job_id": job_id},
             UpdateExpression="SET job_status=:s, job_error=:e",
             ExpressionAttributeValues={":s": "ERROR", ":e": str(e)},
         )
