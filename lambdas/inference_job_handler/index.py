@@ -114,7 +114,7 @@ def call_bedrock(
 
 @tracer.capture_method
 def process_file(
-    file_content: str, prompt: str, job_id: str, file_id: str
+    file_content: str, prompt: str, job_id: str, file_id: str, user_id: str
 ) -> Dict[str, Any]:
     """Process a single file content."""
 
@@ -153,7 +153,7 @@ def process_file(
         metrics.add_metric(name="FailedResponses", unit=MetricUnit.Count, value=1)
 
     # Store response in S3
-    result_key = f"{job_id}/{file_id}.txt"
+    result_key = f"{user_id}/{job_id}/{file_id}.txt"
     s3_client.put_object(
         Bucket=Config.OUTPUT_BUCKET,
         Key=result_key,
@@ -188,7 +188,11 @@ def record_handler(record: SQSRecord):
             )
 
             process_file(
-                file_content=file_content, prompt=prompt, job_id=job_id, file_id=key
+                file_content=file_content,
+                prompt=prompt,
+                job_id=job_id,
+                file_id=key,
+                user_id=user_id,
             )
 
         job_table.update_item(
