@@ -187,9 +187,6 @@ def record_handler(record: SQSRecord):
                 .read()
                 .decode("utf-8")
             )
-            error_code = file_content.response.get("Error", {}).get("Code")
-            if error_code == "NoSuchKey":
-                logger.warning(f"File {key} not found")
 
             process_file(
                 file_content=file_content, prompt=prompt, job_id=job_id, file_id=key
