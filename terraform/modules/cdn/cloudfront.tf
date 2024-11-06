@@ -5,7 +5,7 @@ resource "aws_cloudfront_distribution" "this" {
   enabled         = true
   is_ipv6_enabled = true
   comment         = "CloudFront Distribution for ${var.project_name}-${var.environment} client and API"
-  # default_root_object = "index.html"
+  default_root_object = "index.html"
 
   # Configure the origin for the S3 bucket
   origin {
@@ -30,9 +30,9 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   default_cache_behavior {
-    allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
-    cached_methods   = ["HEAD", "OPTIONS", "GET"]
-    target_origin_id = "api-gateway"
+    allowed_methods  = ["GET", "HEAD"]
+    cached_methods   = ["HEAD", "GET"]
+    target_origin_id = "s3-${var.s3_bucket.name}"
 
     forwarded_values {
       query_string = false
@@ -48,26 +48,26 @@ resource "aws_cloudfront_distribution" "this" {
     max_ttl                = 86400
   }
 
-  # ordered_cache_behavior {
-  #   path_pattern     = "/api/*"
-  #   allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-  #   cached_methods   = ["GET", "HEAD"]
-  #   target_origin_id = "api-gateway"
+  ordered_cache_behavior {
+    path_pattern     = "/api/*"
+    allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "api-gateway"
 
-  #   forwarded_values {
-  #     query_string = true
-  #     headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
+    forwarded_values {
+      query_string = true
+      headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
 
-  #     cookies {
-  #       forward = "none"
-  #     }
-  #   }
+      cookies {
+        forward = "none"
+      }
+    }
 
-  #   viewer_protocol_policy = "redirect-to-https"
-  #   min_ttl                = 0
-  #   default_ttl            = 0
-  #   max_ttl                = 0
-  # }
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 0
+    max_ttl                = 0
+  }
 
   restrictions {
     geo_restriction {
