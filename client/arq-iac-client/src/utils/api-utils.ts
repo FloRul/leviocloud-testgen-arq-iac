@@ -24,26 +24,6 @@ export function getApiUrl(): string | undefined {
   return API_URL;
 }
 
-export async function fetchFromAPI(
-  url: string,
-  options?: RequestInit
-): Promise<any> {
-  try {
-    const response = await fetch(url, options);
-    return handleResponse(response);
-  } catch (error) {
-    throw error;
-  }
-}
-
-async function handleResponse(response: Response): Promise<any> {
-  if (response.ok) {
-    return await response.json();
-  } else {
-    throw new Error("HTTP error: " + response.statusText);
-  }
-}
-
 async function readFileAsBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -59,18 +39,15 @@ export async function uploadFiles(files: File[]): Promise<void> {
     const uploadPromises = files.map(async (file) => {
       try {
         const fileContent = await readFileAsBase64(file);
-        const response = await fetchFromAPI(
-          `https://z5uvqhejwf.execute-api.ca-central-1.amazonaws.com/dev/files`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/octet-stream",
-              Authorization: `Bearer ${idToken}`,
-              filename: file.name,
-            },
-            body: fileContent,
-          }
-        );
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/files`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/octet-stream",
+            Authorization: `Bearer ${idToken}`,
+            filename: file.name,
+          },
+          body: fileContent,
+        });
 
         const contentType = response.headers.get("Content-Type");
         if (contentType && contentType.includes("application/json")) {
@@ -108,8 +85,8 @@ export async function fetchFiles(type: string): Promise<ServerFile[]> {
   try {
     const idToken = await getToken();
     const url = type
-      ? `https://z5uvqhejwf.execute-api.ca-central-1.amazonaws.com/dev/files?type=${type}`
-      : `https://z5uvqhejwf.execute-api.ca-central-1.amazonaws.com/dev/files`;
+      ? `${import.meta.env.VITE_BASE_URL}/files?type=${type}`
+      : `${import.meta.env.VITE_BASE_URL}/files`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -135,8 +112,8 @@ export async function deleteFiles(fileIds: string[]) {
   try {
     const idToken = await getToken();
     const deletePromises = fileIds.map(async (fileId) => {
-      const response = await fetchFromAPI(
-        `https://z5uvqhejwf.execute-api.ca-central-1.amazonaws.com/dev/files/${fileId}`,
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/files/${fileId}`,
         {
           method: "DELETE",
           headers: {
@@ -144,7 +121,6 @@ export async function deleteFiles(fileIds: string[]) {
           },
         }
       );
-
       const contentType = response.headers.get("Content-Type");
 
       if (contentType && contentType.includes("application/json")) {
