@@ -16,6 +16,5 @@
     enabled = false
   }
   force_destroy = true
-  # CORS configuration - restricted to your domain
 }
 

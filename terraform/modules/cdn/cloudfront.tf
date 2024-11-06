@@ -1,6 +1,7 @@
 ﻿data "aws_region" "current" {}
 
 resource "aws_cloudfront_distribution" "this" {
+  depends_on      = [aws_cloudfront_origin_access_control.this]
   enabled         = true
   is_ipv6_enabled = true
   comment         = "CloudFront Distribution for ${var.project_name}-${var.environment} client and API"
@@ -8,12 +9,9 @@ resource "aws_cloudfront_distribution" "this" {
 
   # Configure the origin for the S3 bucket
   origin {
-    domain_name = var.s3_bucket_regional_domain_name
-    origin_id   = "s3-${var.s3_bucket.name}"
-
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_control.this.id
-    }
+    domain_name              = var.s3_bucket_domain_name
+    origin_id                = "s3-${var.s3_bucket.name}"
+    origin_access_control_id = aws_cloudfront_origin_access_control.this.id
   }
 
   # Configure the origin for the API Gateway

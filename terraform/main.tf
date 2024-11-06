@@ -83,6 +83,6 @@ module "cloudfront" {
   api_gateway_id         = module.api.api_gateway_id
   api_gateway_stage_name = module.api.api_gateway_stage_name
 
-  s3_bucket                      = module.client_hosting.s3_bucket
-  s3_bucket_regional_domain_name = module.client_hosting.s3_bucket_regional_domain_name
+  s3_bucket             = module.client_hosting.s3_bucket
+  s3_bucket_domain_name = module.client_hosting.s3_bucket_domain_name
 }
