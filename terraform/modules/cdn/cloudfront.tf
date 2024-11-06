@@ -3,18 +3,18 @@
 resource "aws_cloudfront_distribution" "this" {
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "CloudFront Distribution for ${var.project_name}-${var.environment}"
-  default_root_object = "index.html"
+  comment             = "CloudFront Distribution for ${var.project_name}-${var.environment} client and API"
+  # default_root_object = "index.html"
 
-  # Configure the origin for the S3 bucket
-  origin {
-    domain_name = var.s3_bucket_regional_domain_name
-    origin_id   = "s3-${var.s3_bucket.name}"
+  # # Configure the origin for the S3 bucket
+  # origin {
+  #   domain_name = var.s3_bucket_regional_domain_name
+  #   origin_id   = "s3-${var.s3_bucket.name}"
 
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_control.this.id
-    }
-  }
+  #   s3_origin_config {
+  #     origin_access_identity = aws_cloudfront_origin_access_control.this.id
+  #   }
+  # }
 
   # Configure the origin for the API Gateway
   origin {
@@ -107,10 +107,10 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
 }
 
 # Create Origin Access Control
-resource "aws_cloudfront_origin_access_control" "this" {
-  name                              = "${var.project_name}-${var.environment}-oac"
-  description                       = "OAC for S3 bucket access"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
-}
+# resource "aws_cloudfront_origin_access_control" "this" {
+#   name                              = "${var.project_name}-${var.environment}-oac"
+#   description                       = "OAC for S3 bucket access"
+#   origin_access_control_origin_type = "s3"
+#   signing_behavior                  = "always"
+#   signing_protocol                  = "sigv4"
+# }
