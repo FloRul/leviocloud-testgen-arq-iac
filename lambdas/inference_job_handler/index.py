@@ -1,5 +1,6 @@
 ﻿import json
 import os
+import time
 import boto3
 import re
 from typing import List, Optional, Dict, Any
@@ -169,8 +170,11 @@ def record_handler(record: SQSRecord):
     user_id = payload.get("user_id")
     job_table.update_item(
         Key={"user_id": user_id, "job_id": job_id},
-        UpdateExpression="SET job_status=:s",
-        ExpressionAttributeValues={":s": "PROCESSING"},
+        UpdateExpression="SET job_status=:s, updated_at=:u",
+        ExpressionAttributeValues={
+            ":s": "PROCESSING",
+            ":u": int(time.time()),
+        },
     )
     try:
         # extract file ids list
@@ -197,15 +201,22 @@ def record_handler(record: SQSRecord):
 
         job_table.update_item(
             Key={"user_id": user_id, "job_id": job_id},
-            UpdateExpression="SET job_status=:s",
-            ExpressionAttributeValues={":s": "COMPLETED"},
+            UpdateExpression="SET job_status=:s, updated_at=:u",
+            ExpressionAttributeValues={
+                ":s": "COMPLETED",
+                ":u": int(time.time()),
+            },
         )
     except Exception as e:
         logger.error(f"Error processing job {job_id}: {str(e)}")
         job_table.update_item(
             Key={"user_id": user_id, "job_id": job_id},
-            UpdateExpression="SET job_status=:s, job_error=:e",
-            ExpressionAttributeValues={":s": "ERROR", ":e": str(e)},
+            UpdateExpression="SET job_status=:s, job_error=:e, updated_at=:u",
+            ExpressionAttributeValues={
+                ":s": "ERROR",
+                ":e": str(e),
+                ":u": int(time.time()),
+            },
         )
 
 

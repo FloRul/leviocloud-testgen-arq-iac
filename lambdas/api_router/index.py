@@ -274,6 +274,7 @@ def create_batch_inference_job():
                 "status": "PENDING",
                 "input_files": files,
                 "prompt": prompt,
+                "created_at": current_time,
             }
         ),
     )
