@@ -177,7 +177,7 @@ def record_handler(record: SQSRecord):
     job_id = payload.get("job_id")
     job_table.update_item(
         Key={"job_id": job_id, "user_id": payload.get("user_id")},
-        UpdateExpression="SET status=:s",
+        UpdateExpression="SET job_status=:s",
         ExpressionAttributeValues={":s": "PROCESSING"},
     )
     try:

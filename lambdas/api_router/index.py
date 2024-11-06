@@ -221,7 +221,7 @@ def create_batch_inference_job():
         message_body = {
             "user_id": user_id,
             "job_id": job_id,
-            "status": "PENDING",
+            "job_status": "PENDING",
             "input_files": files,
             "prompt": body,
         }
@@ -246,12 +246,12 @@ def create_batch_inference_job():
             Item={
                 "user_id": user_id,
                 "job_id": job_id,
-                "status": "PENDING",
+                "job_status": "PENDING",
                 "prompt": prompt,
                 "input_files": files,
                 "created_at": current_time,
                 "updated_at": current_time,
-                "error": "",
+                "job_error": "",
             }
         )
     except ClientError as e:
