@@ -9,3 +9,23 @@ variable "project_name" {
   type        = string
   nullable    = false
 }
+
+variable "s3_bucket_id" {
+  description = "The ID of the S3 bucket"
+  type        = string
+}
+
+variable "s3_bucket_regional_domain_name" {
+  description = "The regional domain name of the S3 bucket"
+  type        = string
+}
+
+variable "api_gateway_id" {
+  description = "The ID of the API Gateway REST API"
+  type        = string
+}
+
+variable "api_gateway_stage_name" {
+  description = "The name of the API Gateway stage"
+  type        = string
+}
