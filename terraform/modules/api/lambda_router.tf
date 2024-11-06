@@ -81,7 +81,8 @@ module "lambda_router" {
       actions = [
         "dynamodb:GetItem",
         "dynamodb:PutItem",
-        "dynamodb:DeleteItem"
+        "dynamodb:DeleteItem",
+        "dynamodb:Query"
       ],
       resources = [
         var.jobs_status_table.arn,
