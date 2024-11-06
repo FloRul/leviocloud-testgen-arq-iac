@@ -348,7 +348,9 @@ def get_download_url(job_id: str, file_id: str):
         raise ServiceError(msg="Failed to generate download URL")
 
 
-@logger.inject_lambda_context(correlation_id_path=correlation_paths.API_GATEWAY_REST)
+@logger.inject_lambda_context(
+    correlation_id_path=correlation_paths.API_GATEWAY_REST, log_event=True
+)
 @tracer.capture_lambda_handler
 def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> Dict[str, Any]:
     try:
