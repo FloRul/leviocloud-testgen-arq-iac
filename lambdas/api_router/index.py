@@ -223,7 +223,7 @@ def create_batch_inference_job():
             "job_id": job_id,
             "job_status": "PENDING",
             "input_files": files,
-            "prompt": body,
+            "prompt": prompt,
         }
 
         sqs_client.send_message(

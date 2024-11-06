@@ -182,7 +182,7 @@ def record_handler(record: SQSRecord):
     )
     try:
         # extract file ids list
-        file_keys = [file["s3_key"] for file in payload["files"]]
+        file_keys = [file["s3_key"] for file in payload["input_files"]]
 
         # extract prompt
         prompt = payload["prompt"]
