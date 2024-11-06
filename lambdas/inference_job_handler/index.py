@@ -163,7 +163,7 @@ def process_file(
 
     result = {
         "resultKey": result_key,
-        "status": "success" if valid_response else "failed",
+        "job_status": "success" if valid_response else "failed",
         "callCount": call_count,
     }
 
@@ -205,14 +205,14 @@ def record_handler(record: SQSRecord):
 
         job_table.update_item(
             Key={"job_id": job_id, "user_id": payload.get("user_id")},
-            UpdateExpression="SET status=:s",
+            UpdateExpression="SET job_status=:s",
             ExpressionAttributeValues={":s": "COMPLETED"},
         )
     except Exception as e:
         logger.error(f"Error processing job {job_id}: {str(e)}")
         job_table.update_item(
             Key={"job_id": job_id},
-            UpdateExpression="SET status=:s, error=:e",
+            UpdateExpression="SET job_status=:s, error=:e",
             ExpressionAttributeValues={":s": "ERROR", ":e": str(e)},
         )
 
