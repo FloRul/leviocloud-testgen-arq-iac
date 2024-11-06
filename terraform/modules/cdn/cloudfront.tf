@@ -32,9 +32,9 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "s3-${var.s3_bucket.name}"
+    allowed_methods  = ["GET", "HEAD", "OPTIONS", "POST", "DELETE"]
+    cached_methods   = ["HEAD", "OPTIONS"]
+    target_origin_id = "api-gateway"
 
     forwarded_values {
       query_string = false
@@ -50,26 +50,26 @@ resource "aws_cloudfront_distribution" "this" {
     max_ttl                = 86400
   }
 
-  ordered_cache_behavior {
-    path_pattern     = "/api/*"
-    allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "api-gateway"
+  # ordered_cache_behavior {
+  #   path_pattern     = "/api/*"
+  #   allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+  #   cached_methods   = ["GET", "HEAD"]
+  #   target_origin_id = "api-gateway"
 
-    forwarded_values {
-      query_string = true
-      headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
+  #   forwarded_values {
+  #     query_string = true
+  #     headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
 
-      cookies {
-        forward = "none"
-      }
-    }
+  #     cookies {
+  #       forward = "none"
+  #     }
+  #   }
 
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 0
-    max_ttl                = 0
-  }
+  #   viewer_protocol_policy = "redirect-to-https"
+  #   min_ttl                = 0
+  #   default_ttl            = 0
+  #   max_ttl                = 0
+  # }
 
   restrictions {
     geo_restriction {
