@@ -212,7 +212,7 @@ def record_handler(record: SQSRecord):
         logger.error(f"Error processing job {job_id}: {str(e)}")
         job_table.update_item(
             Key={"job_id": job_id},
-            UpdateExpression="SET job_status=:s, error=:e",
+            UpdateExpression="SET job_status=:s, job_error=:e",
             ExpressionAttributeValues={":s": "ERROR", ":e": str(e)},
         )
 
