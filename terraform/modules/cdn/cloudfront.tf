@@ -1,9 +1,9 @@
 ﻿data "aws_region" "current" {}
 
 resource "aws_cloudfront_distribution" "this" {
-  enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "CloudFront Distribution for ${var.project_name}-${var.environment} client and API"
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "CloudFront Distribution for ${var.project_name}-${var.environment} client and API"
   # default_root_object = "index.html"
 
   # # Configure the origin for the S3 bucket
@@ -33,7 +33,7 @@ resource "aws_cloudfront_distribution" "this" {
 
   default_cache_behavior {
     allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
-    cached_methods   = ["HEAD", "OPTIONS"]
+    cached_methods   = ["HEAD", "OPTIONS", "GET"]
     target_origin_id = "api-gateway"
 
     forwarded_values {
