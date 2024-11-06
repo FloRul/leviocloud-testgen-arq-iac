@@ -161,22 +161,15 @@ def process_file(
         Body=(output).encode("utf-8"),
     )
 
-    result = {
-        "resultKey": result_key,
-        "job_status": "success" if valid_response else "failed",
-        "callCount": call_count,
-    }
-
-    return result
-
 
 @tracer.capture_method
 def record_handler(record: SQSRecord):
     payload = record.json_body
     logger.info(payload)
     job_id = payload.get("job_id")
+    user_id = payload.get("user_id")
     job_table.update_item(
-        Key={"job_id": job_id, "user_id": payload.get("user_id")},
+        Key={"job_id": job_id, "user_id": user_id},
         UpdateExpression="SET job_status=:s",
         ExpressionAttributeValues={":s": "PROCESSING"},
     )
@@ -194,17 +187,16 @@ def record_handler(record: SQSRecord):
                 .read()
                 .decode("utf-8")
             )
-            error_code = e.response["Error"]["Code"]
+            error_code = file_content.response.get("Error", {}).get("Code")
             if error_code == "NoSuchKey":
                 logger.warning(f"File {key} not found")
 
-            # process file
             process_file(
                 file_content=file_content, prompt=prompt, job_id=job_id, file_id=key
             )
 
         job_table.update_item(
-            Key={"job_id": job_id, "user_id": payload.get("user_id")},
+            Key={"job_id": job_id, "user_id": user_id},
             UpdateExpression="SET job_status=:s",
             ExpressionAttributeValues={":s": "COMPLETED"},
         )
