@@ -1,11 +1,13 @@
 ﻿data "aws_region" "current" {}
 
 resource "aws_cloudfront_distribution" "this" {
-  depends_on      = [aws_cloudfront_origin_access_control.this]
-  enabled         = true
-  is_ipv6_enabled = true
-  comment         = "CloudFront Distribution for ${var.project_name}-${var.environment} client and API"
+  depends_on          = [aws_cloudfront_origin_access_control.this]
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "CloudFront Distribution for ${var.project_name}-${var.environment} client and API"
   default_root_object = "index.html"
+
+  aliases = [var.cloudfront_alias]
 
   # Configure the origin for the S3 bucket
   origin {

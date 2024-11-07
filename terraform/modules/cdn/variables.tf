@@ -32,3 +32,7 @@ variable "api_gateway_stage_name" {
   description = "The name of the API Gateway stage"
   type        = string
 }
+variable "cloudfront_alias" {
+  type     = string
+  nullable = false
+}

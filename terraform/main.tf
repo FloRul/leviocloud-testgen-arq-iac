@@ -82,6 +82,8 @@ module "cloudfront" {
   environment  = var.environment
   project_name = local.project_name
 
+  cloudfront_alias = var.cloudfront_alias
+
   api_gateway_id         = module.api.api_gateway_id
   api_gateway_stage_name = module.api.api_gateway_stage_name
 
