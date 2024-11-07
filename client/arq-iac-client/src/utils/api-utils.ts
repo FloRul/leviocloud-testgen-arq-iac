@@ -1,4 +1,5 @@
 import { fetchAuthSession } from "aws-amplify/auth";
+import { Job, ServerFile } from "./interfaces";
 
 let API_URL: string | undefined;
 
@@ -71,16 +72,6 @@ export async function uploadFiles(files: File[]): Promise<void> {
   }
 }
 
-export interface ServerFile {
-  filename: string;
-  size: number;
-  user_id: string;
-  last_modified: number;
-  s3_key: string;
-  content_type: "application/octet-stream";
-  file_id: string;
-}
-
 export async function fetchFiles(type: string): Promise<ServerFile[]> {
   try {
     const idToken = await getToken();
@@ -138,5 +129,99 @@ export async function deleteFiles(fileIds: string[]) {
     console.log("Tous les fichiers ont été supprimés avec succès.");
   } catch (error) {
     console.error("Erreur réseau lors de la suppression des fichiers:", error);
+  }
+}
+
+export const submitForm = async (
+  model: string,
+  selectedFiles: string[],
+  prompt: string
+): Promise<any> => {
+  try {
+    const idToken = await getToken();
+    console.log({ selectedFiles });
+    const formData = {
+      files: selectedFiles,
+      prompt: prompt,
+      model: model,
+    };
+    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/jobs`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Erreur lors de l'envoi du formulaire.");
+    }
+
+    const result: Job = await response.json();
+    console.log("Réponse de l'API:", result);
+    return result;
+  } catch (error) {
+    console.error("Erreur lors de la soumission du formulaire:", error);
+    throw new Error("Une erreur s'est produite lors de l'envoi du formulaire.");
+  }
+};
+
+export const getLink = async (
+  jobId: string,
+  fileId: string
+): Promise<string> => {
+  try {
+    const idToken = await getToken();
+    const url = `${
+      import.meta.env.VITE_BASE_URL
+    }/jobs/${jobId}/download/${fileId}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data = await response.json();
+    if (data && data.presigned_url) {
+      return `${data.presigned_url}`; // Retourne seulement l'URL
+    } else {
+      throw new Error("Presigned URL not found in the response");
+    }
+  } catch (error) {
+    console.error("Error fetching files:", error);
+    throw new Error("Error fetching the presigned URL");
+  }
+};
+
+export async function getJobs(): Promise<Job[]> {
+  try {
+    const idToken = await getToken();
+    const url = `${import.meta.env.VITE_BASE_URL}/jobs`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const data: Job[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching files:", error);
+    return [];
   }
 }

@@ -4,7 +4,11 @@ import { fetchFiles, uploadFiles } from "../../utils/api-utils";
 import { languages } from "../../utils/languages";
 import { useFileContext } from "../file-context/file-context";
 
-const FileUploader: React.FC = () => {
+interface FileUploaderProps {
+  onClose: () => void;
+}
+
+const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
   const { language } = useLanguage();
@@ -15,7 +19,8 @@ const FileUploader: React.FC = () => {
     const selectedFiles = event.target.files;
     if (!selectedFiles) return;
 
-    const fileArray = Array.from(selectedFiles);
+    const fileArray = [...selectedFiles];
+
     const allowedTypes = ["text/plain"];
     const exceedsMaxSize = fileArray.some(
       (file) => file.size > 5 * 1024 * 1024
@@ -115,6 +120,13 @@ const FileUploader: React.FC = () => {
           <span className="relative" data-key="upload-button-span">
             {t["upload-button-span"]}
           </span>
+        </button>
+        <button
+          type="button"
+          className="group pf-button pf-button--lg pf-button--secondary pf-transition-outline h-focus-state"
+          onClick={onClose}
+        >
+          {t["close"]}
         </button>
       </div>
     </div>

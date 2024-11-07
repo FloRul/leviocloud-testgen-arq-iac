@@ -4,11 +4,10 @@ import "@aws-amplify/ui-react/styles.css";
 import { Amplify } from "aws-amplify";
 import { useEffect } from "react";
 import config from "../amplifyconfiguration.json";
+import ClaudeForm from "./components/claude-form/claude-form";
 import { FileProvider } from "./components/file-context/file-context";
-import FileList from "./components/file-list/file-list";
-import FileUploader from "./components/file-uploader/file-uploader";
 import Header from "./components/header/header";
-import ModelSelector from "./components/model-selector/model-selector";
+import JobList from "./components/jobs/job-list";
 import { getIdToken } from "./utils/auth-utils";
 Amplify.configure(config);
 
@@ -60,12 +59,10 @@ export function App({ signOut, user }: WithAuthenticatorProps) {
             <div className="xs:bg-white xs:rounded-3xl xs:p-16">
               <div className="pf-form-section pt-10 first:pt-0">
                 <div className="grid grid-cols-1 gap-8 sm:grid-cols-6">
-                  <ModelSelector />
                   <FileProvider>
-                    <FileUploader />
-
-                    <FileList />
+                    <ClaudeForm />
                   </FileProvider>
+                  <JobList />
                 </div>
               </div>
             </div>
