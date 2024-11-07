@@ -74,7 +74,7 @@ jobs:
           echo "VITE_USER_POOL_ID=$USER_POOL_ID" >> .env
 
       - name: Sync content to S3
-        working-directory: ./client/arq-iac-client/build
+        working-directory: ./client/arq-iac-client/dist
         run: aws s3 sync . s3://$S3_BUCKET_NAME --delete
 
       - name: Invalidate CloudFront
