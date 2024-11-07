@@ -3,7 +3,7 @@ import { withAuthenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import { Amplify } from "aws-amplify";
 import { useEffect } from "react";
-import config from "../amplifyconfiguration.json";
+import config from "./amplify-configuration";
 import ClaudeForm from "./components/claude-form/claude-form";
 import { FileProvider } from "./components/file-context/file-context";
 import Header from "./components/header/header";
