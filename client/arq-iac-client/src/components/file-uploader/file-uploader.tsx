@@ -101,7 +101,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
               key={index}
               className="file-item flex justify-between items-center mb-2"
             >
-              <span>{file.name}</span>
+              <span>
+                {file.name.length > 30
+                  ? file.name.substring(0, 30) + "..."
+                  : file.name}
+              </span>
               <button
                 onClick={() => removeFile(file.name)}
                 className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 ml-2"
