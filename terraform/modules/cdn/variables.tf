@@ -37,7 +37,7 @@ variable "cloudfront_alias" {
   nullable = false
 }
 
-variable "acm_certificate_id" {
+variable "acm_certificate_arn" {
   type     = string
   nullable = false
 }
