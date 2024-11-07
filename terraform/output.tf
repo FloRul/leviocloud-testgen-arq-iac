@@ -8,7 +8,7 @@ output "cloudfront_distribution_id" {
 
 
 output "base_url" {
-  value = module.api.invoke_url
+  value = module.api.base_url
 }
 
 output "identity_pool_id" {
