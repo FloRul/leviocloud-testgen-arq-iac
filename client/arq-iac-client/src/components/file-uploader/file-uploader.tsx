@@ -53,6 +53,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
         if (fileInput) {
           fileInput.value = "";
         }
+
+        onClose();
       } catch (error) {
         setErrorMessage("Erreur lors de l'upload des fichiers");
       }
@@ -72,6 +74,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
       >
         {t["upload-label"]}
       </label>
+      <div className="text-sm">{t["allowed-format"]}</div>
       <input
         type="file"
         id="sourceCodeFile"
@@ -91,8 +94,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
       )}
 
       {files.length > 0 && (
-        <div className="file-list mt-2 w-1/3">
-          <p>Fichiers sélectionnés :</p>
+        <div className="file-list mt-2 ">
+          <p>{t["selected-files"]}</p>
           {files.map((file, index) => (
             <div
               key={index}
@@ -110,11 +113,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
         </div>
       )}
 
-      <div className="sm:col-span-6 text-center mt-4">
+      <div className="sm:col-span-6 mt-4">
         <button
           id="uploadButton"
           type="button"
-          className="group pf-button pf-button--lg pf-button--primary pf-transition-outline h-focus-state"
+          className="group bg-cyan-900 hover:bg-green-500 text-white rounded-full mr-5"
           onClick={handleUploadFile}
         >
           <span className="relative" data-key="upload-button-span">
@@ -123,7 +126,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
         </button>
         <button
           type="button"
-          className="group pf-button pf-button--lg pf-button--secondary pf-transition-outline h-focus-state"
+          className="group bg-cyan-900 hover:bg-green-500 text-white rounded-full "
           onClick={onClose}
         >
           {t["close"]}

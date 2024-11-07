@@ -77,13 +77,59 @@ const FileList: React.FC<FileListProps> = ({
 
   return (
     <div className="file-list pf-form-field sm:col-span-6">
-      <input
-        type="text"
-        placeholder={t["search-files"]}
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        className="search-input"
-      />
+      <label
+        className="mb-2 block text-p1 text-primary-500 transition-colors duration-200 ease-in-out"
+        htmlFor="modelSelect"
+        data-key="claude-model-label"
+      >
+        {t["claude-files-label"]}
+        <span className="text-red-700">*</span>
+      </label>
+      <div className="flex items-center mb-2">
+        <input
+          type="text"
+          placeholder={t["search-files"]}
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="search-input w-6/12 rounded-lg mb-2"
+        />
+        <div className="flex space-x-2 ml-auto">
+          <button
+            type="button"
+            onClick={openModal}
+            className="rounded-md bg-slate-800 p-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none mr-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 -960 960 960"
+              width="24px"
+              fill="#e8eaed"
+            >
+              <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+            </svg>
+          </button>
+          <button
+            id="deleteButton"
+            type="button"
+            className="rounded-md bg-slate-800 p-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+            onClick={handleDelete}
+          >
+            <span className="relative" data-key="delete-files-button-span">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="24px"
+                viewBox="0 -960 960 960"
+                width="24px"
+                fill="#e8eaed"
+              >
+                <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z" />
+              </svg>
+            </span>
+          </button>
+        </div>
+      </div>
+
       <table className="file-table w-full">
         <thead>
           <tr>
@@ -98,10 +144,10 @@ const FileList: React.FC<FileListProps> = ({
                 disabled={filteredFiles.length === 0}
               />
             </th>
-            <th className="border border-gray-300 px-4 py-2 text-left bg-gray-200 w-7/12">
+            <th className="border border-gray-300 px-4 py-2 text-left bg-gray-200 w-9/12">
               {t["file-name"]}
             </th>
-            <th className="border border-gray-300 px-4 py-2 text-left bg-gray-200 w-4/12">
+            <th className="border border-gray-300 px-4 py-2 text-left bg-gray-200 w-2/12">
               {t["file-last-update"]}
             </th>
           </tr>
@@ -130,25 +176,6 @@ const FileList: React.FC<FileListProps> = ({
       <Modal isOpen={isModalOpen}>
         <FileUploader onClose={closeModal} />
       </Modal>
-      <div className="sm:col-span-6 text-center mt-4">
-        <button
-          type="button"
-          onClick={openModal}
-          className="group pf-button pf-button--lg pf-button--primary pf-transition-outline h-focus-state h-focus-state--offset-primary"
-        >
-          {t["add-files"]}
-        </button>
-        <button
-          id="deleteButton"
-          type="button"
-          className="group pf-button pf-button--lg pf-button--primary pf-transition-outline h-focus-state h-focus-state--offset-primary"
-          onClick={handleDelete}
-        >
-          <span className="relative" data-key="delete-files-button-span">
-            {t["delete-file-button-span"]}
-          </span>
-        </button>
-      </div>
     </div>
   );
 };

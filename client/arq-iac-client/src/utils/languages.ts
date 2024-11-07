@@ -1,7 +1,8 @@
 export const languages = {
   en: {
     "main-title": "Generative AI",
-    "claude-model-label": "Claude AI Language Model",
+    "claude-model-label": "Please select claude AI language model",
+    "claude-files-label": "Please select one or more files",
     "source-code-input": {
       text: "Enter source code here...",
       "data-val-required": "The 'Last Name' field is required.",
@@ -10,9 +11,10 @@ export const languages = {
     "source-code-file-span":
       "Maximum size exceeded. Maximum size allowed is 10 MB.",
     "invalid-file-type": "The selected file type is not allowed.",
+    "fields-required": "All fields marked with * are required ",
     "upload-label": "Upload Source Code File",
-    "upload-button-span": "Upload Source Code File",
-    "prompt-label": "Prompt",
+    "upload-button-span": "Upload File",
+    "prompt-label": "Please enter your request",
     "prompt-input": {
       text: "Enter your prompt here...",
       "data-val-phone":
@@ -26,7 +28,7 @@ export const languages = {
     "add-files": "Add files",
     "error-message":
       "Please select at least one file and provide an instruction.",
-    close: "Close",
+    close: "Cancel",
     submit: "Submit",
     submitting: "Submitting...",
     "download-button-span": "Download Response",
@@ -54,10 +56,16 @@ export const languages = {
     page: "Page",
     of: "of",
     "refresh-search": "Refresh search",
+    "selected-files": "Selected files :",
+    "allowed-format": "Only files in txt, .cs, .vb, .sql format are allowed",
+    files: "Files: ",
+    prompt: "Prompt: ",
   },
   fr: {
     "main-title": "IA générative",
-    "claude-model-label": "Modèle de Langage Claude AI",
+    "claude-model-label":
+      "Veuillez selectionner le modèle de langage claude AI",
+    "claude-files-label": "Veuillez sélectionner un ou plusieurs fichiers",
     "source-code-input": {
       text: "Entrez le code source ici...",
       "data-val-required": "Le champ 'Nom' est requis.",
@@ -66,9 +74,11 @@ export const languages = {
     "source-code-file-span":
       "Taille maximale dépassée. La taille maximale autorisée est de 10 Mo.",
     "invalid-file-type": "Le type de fichier sélectionné n'est pas autorisé.",
-    "upload-label": "Télécharger le fichier de code source",
-    "upload-button-span": "Télécharger le fichier de code source",
-    "prompt-label": "Prompt",
+    "fields-required":
+      "Tous les champs marqués d'un astérisque * sont obligatoires",
+    "upload-label": "Ajouter des fichiers ",
+    "upload-button-span": "Téléverser les fichiers",
+    "prompt-label": "Veuillez saisir votre demande",
     "prompt-input": {
       text: "Entrez votre prompt ici...",
       "data-val-phone":
@@ -83,7 +93,7 @@ export const languages = {
     "add-files": "Ajouter des fichiers",
     "error-message":
       "Veuillez sélectionner au moins un fichier et fournir une instruction.",
-    close: "Fermer",
+    close: "Cancel",
     submit: "Soumettre",
     submitting: "Envoi en cours...",
     "download-button-span": "Télécharger la réponse",
@@ -95,12 +105,13 @@ export const languages = {
     },
     "file-name": "Nom du fichier",
     "file-last-update": "Dernière mise à jour: ",
-    "list-of-jobs": "Liste des emplois",
-    "no-jobs-found": "Aucun emploi trouvé.",
-    "search-jobs-placeholder": "Rechercher par ID d'emploi, prompt ou statut",
-    "loading-jobs": "Chargement des emplois...",
-    "error-fetch-jobs": "Erreur lors de la récupération des emplois",
-    "error-loading-jobs": "Erreur lors du chargement des emplois.",
+    "list-of-jobs": "Liste des processus",
+    "no-jobs-found": "Aucun processus trouvé.",
+    "search-jobs-placeholder":
+      "Rechercher par ID de processus, prompt ou statut",
+    "loading-jobs": "Chargement des processus...",
+    "error-fetch-jobs": "Erreur lors de la récupération des processus",
+    "error-loading-jobs": "Erreur lors du chargement des processus.",
     "failed-to-fetch-link":
       "Échec de la récupération du lien pour le fichier :",
     status: "Statut :",
@@ -112,5 +123,10 @@ export const languages = {
     page: "Page",
     of: "sur",
     "refresh-search": "Reactualiser la recherche",
+    "selected-files": "Fichiers sélectionnés :",
+    "allowed-format":
+      "Seul les fichiers au format txt, .cs, .vb, .sql sont autorisés",
+    files: "Fichiers : ",
+    prompt: "Prompt : ",
   },
 };
