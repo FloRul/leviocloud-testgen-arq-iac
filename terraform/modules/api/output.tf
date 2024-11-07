@@ -19,5 +19,5 @@ output "user_pool_client_id" {
 }
 
 output "user_pool_id" {
-  value = data.aws_cognito_user_pool.this.id
+  value = data.aws_cognito_user_pool.user_pool.id
 }

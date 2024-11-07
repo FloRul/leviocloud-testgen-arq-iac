@@ -9,7 +9,7 @@ data "aws_cognito_identity_pool" "this" {
   identity_pool_name = var.cognito_identity_pool_name
 }
 
-data "aws_cognito_user_pool_client" "client" {
+data "aws_cognito_user_pool_client" "this" {
   client_id    = var.aws_cognito_user_pool_client_id
   user_pool_id = data.aws_cognito_user_pool.user_pool.id
 }
