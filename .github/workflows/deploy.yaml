@@ -47,7 +47,7 @@ jobs:
       - name: Install dependencies
         working-directory: ./client/arq-iac-client
         run: npm install
-        
+
       - name: Extract S3 bucket name and cloudfront distribution
         working-directory: ./terraform
         run: |
@@ -59,7 +59,7 @@ jobs:
           echo "USER_POOL_ID=$(terraform output -raw user_pool_id)" >> $GITHUB_ENV
 
       - name: Compose .env file
-        working-directory: ./client/arq-iac-client/dist
+        working-directory: ./client/arq-iac-client
         run: |
           echo "VITE_BASE_URL=$API_BASE_URL" >> .env
           echo "VITE_IDENTITY_POOL_ID=$IDENTITY_POOL_ID" >> .env
