@@ -52,6 +52,9 @@ jobs:
         working-directory: ./client/arq-iac-client
         run: npm run build
 
+      - name: Verify build directory
+        run: ls ./client/arq-iac-client/
+
       - name: Extract S3 bucket name and cloudfront distribution
         working-directory: ./terraform
         run: |
