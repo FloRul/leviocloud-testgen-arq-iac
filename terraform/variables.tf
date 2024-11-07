@@ -13,7 +13,7 @@ variable "cognito_identity_pool_name" {
   nullable = false
 }
 
-variable "aws_cognito_user_pool_client_id" {
+variable "cognito_user_pool_client_id" {
   type     = string
   nullable = false
 }

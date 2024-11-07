@@ -42,7 +42,7 @@ module "api" {
   inference_queue                 = module.batch_inference.inference_queue
   jobs_status_table               = module.batch_inference.inference_jobs_status_table
   output_bucket                   = module.storage.file_process_output_bucket
-  aws_cognito_user_pool_client_id = var.aws_cognito_user_pool_client_id
+  aws_cognito_user_pool_client_id = var.cognito_user_pool_client_id
   cognito_identity_pool_name      = var.cognito_identity_pool_name
 }
 

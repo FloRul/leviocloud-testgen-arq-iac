@@ -80,9 +80,9 @@ jobs:
           echo "VITE_USER_POOL_ID=$USER_POOL_ID" >> .env
           cp .env build/.env
 
-
       - name: Sync content to S3
         run: aws s3 sync build s3://$S3_BUCKET_NAME --delete
+      
       - name: Invalidate CloudFront
         run: aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
 
