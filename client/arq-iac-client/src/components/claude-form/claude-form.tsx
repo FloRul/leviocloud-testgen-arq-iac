@@ -93,7 +93,7 @@ const ClaudeForm: React.FC = () => {
           type="button"
           className={`${
             isFormInvalid || isSubmitting
-              ? "bg-slate-600 text-white rounded-full"
+              ? "bg-slate-400 text-white rounded-full"
               : "bg-cyan-900 hover:bg-green-500 text-white rounded-full"
           }`}
           onClick={handleSubmit}

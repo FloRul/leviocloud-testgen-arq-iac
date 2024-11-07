@@ -24,7 +24,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ prompt, setPrompt }) => {
         id="prompt"
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Entrez votre prompt ici..."
+        placeholder=" Entrez votre prompt ici..."
         className="input-text rounded-lg flex-1 block w-full min-w-0 "
       />
     </div>

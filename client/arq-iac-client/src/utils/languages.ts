@@ -4,7 +4,7 @@ export const languages = {
     "claude-model-label": "Please select claude AI language model",
     "claude-files-label": "Please select one or more files",
     "source-code-input": {
-      text: "Enter source code here...",
+      text: "Enter source code here",
       "data-val-required": "The 'Last Name' field is required.",
     },
     "source-code-label": "Source Code",
@@ -16,7 +16,7 @@ export const languages = {
     "upload-button-span": "Upload File",
     "prompt-label": "Please enter your request",
     "prompt-input": {
-      text: "Enter your prompt here...",
+      text: "Enter your prompt here",
       "data-val-phone":
         "The 'Phone' field must be a valid telephone number (e.g., 418 111 1111).",
     },
@@ -47,7 +47,7 @@ export const languages = {
     "error-fetch-jobs": "Error fetching jobs",
     "error-loading-jobs": "Error while loading jobs.",
     "failed-to-fetch-link": "Failed to fetch link for file:",
-    status: "Status:",
+    status: "Status: ",
     "created-at": "Created at: ",
     "link-not-available": "Link not available yet",
     "job-search-placeholder": "Search by prompt or status",
@@ -80,7 +80,7 @@ export const languages = {
     "upload-button-span": "Téléverser les fichiers",
     "prompt-label": "Veuillez saisir votre demande",
     "prompt-input": {
-      text: "Entrez votre prompt ici...",
+      text: "Entrez votre prompt ici",
       "data-val-phone":
         "Le champ 'Téléphone' doit être un numéro de téléphone valide (ex. : 418 111 1111).",
     },
@@ -89,7 +89,7 @@ export const languages = {
     "generate-button-span": "Générer",
     "download-file-button-span": "Télécharger le fichier",
     "delete-file-button-span": "Supprimer les fichiers sélectionnés",
-    "search-files": "Rechercher des fichiers...",
+    "search-files": "Recherchez des fichiers",
     "add-files": "Ajouter des fichiers",
     "error-message":
       "Veuillez sélectionner au moins un fichier et fournir une instruction.",
@@ -114,7 +114,7 @@ export const languages = {
     "error-loading-jobs": "Erreur lors du chargement des processus.",
     "failed-to-fetch-link":
       "Échec de la récupération du lien pour le fichier :",
-    status: "Statut :",
+    status: "Statut : ",
     "created-at": "Créé le : ",
     "link-not-available": "Lien non disponible pour le moment",
     "job-search-placeholder": "Rechercher par prompt ou par statut",
