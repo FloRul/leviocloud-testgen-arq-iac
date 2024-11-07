@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "../../context/languages-context";
-import { getJobs } from "../../utils/api-utils";
 import { Job } from "../../utils/interfaces";
 import { languages } from "../../utils/languages";
+import { useJobContext } from "../contexts/job-context";
 import JobItem from "./job-item";
 
 const JobList: React.FC = () => {
   const { language } = useLanguage();
   const t = languages[language];
 
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const { jobs } = useJobContext();
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -20,9 +20,7 @@ const JobList: React.FC = () => {
 
   const loadJobs = async () => {
     try {
-      const jobData = await getJobs();
-      setJobs(jobData);
-      setFilteredJobs(jobData);
+      setFilteredJobs(jobs);
     } catch (error) {
       console.error("Erreur lors de la récupération des jobs", error);
       setError("Erreur lors du chargement des jobs.");
@@ -96,7 +94,7 @@ const JobList: React.FC = () => {
                     <button
                       onClick={() => paginate(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="flex items-center justify-center px-3 h-8 leading-tight text-gray-300 bg-white border border-e-0 border-gray-100 rounded-s-lg hover:bg-gray-100 hover:text-gray-500 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200 dark:hover:bg-gray-500 dark:hover:text-white"
+                      className="bg-white hover:bg-cyan-900 text-cyan-700 hover:text-white font-semibold py-2 px-4 border border-gray-400 rounded shadow"
                     >
                       {t["previous"]}
                     </button>
@@ -106,9 +104,9 @@ const JobList: React.FC = () => {
                     <li key={number}>
                       <button
                         onClick={() => paginate(number)}
-                        className={`flex items-center justify-center px-3 h-8 leading-tight text-gray-300 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-500 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200 dark:hover:bg-gray-500 dark:hover:text-white ${
+                        className={`bg-white hover:bg-cyan-900 text-cyan-700 hover:text-white font-semibold py-2 px-4 border border-gray-400 rounded shadow ${
                           number === currentPage
-                            ? "text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:bg-gray-500 dark:text-white"
+                            ? "text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:bg-cyan-700 dark:text-white"
                             : ""
                         }`}
                       >
@@ -121,7 +119,7 @@ const JobList: React.FC = () => {
                     <button
                       onClick={() => paginate(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="flex items-center justify-center px-3 h-8 leading-tight text-gray-300 bg-white border border-gray-100 rounded-e-lg hover:bg-gray-100 hover:text-gray-500 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200 dark:hover:bg-gray-500 dark:hover:text-white"
+                      className="bg-white hover:bg-cyan-900 text-cyan-700 hover:text-white font-semibold py-2 px-4 border border-gray-400 rounded shadow"
                     >
                       {t["next"]}
                     </button>
@@ -142,7 +140,7 @@ const JobList: React.FC = () => {
       <div className="flex justify-center mt-4">
         <button
           type="button"
-          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          className="text-white bg-cyan-900 hover:bg-green-500 focus:ring-4 focus:outline-none focus:ring-blue-600 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center me-2 dark:bg-cyan-900  dark:hover:bg-green-500 dark:focus:ring-blue-800"
           onClick={handleSearch}
         >
           <svg

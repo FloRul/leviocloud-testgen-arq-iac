@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useLanguage } from "../../context/languages-context";
 import { fetchFiles, uploadFiles } from "../../utils/api-utils";
 import { languages } from "../../utils/languages";
-import { useFileContext } from "../file-context/file-context";
+import { useFileContext } from "../contexts/file-context";
 
 interface FileUploaderProps {
   onClose: () => void;
@@ -130,7 +130,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
         </button>
         <button
           type="button"
-          className="group bg-cyan-900 hover:bg-green-500 text-white rounded-full "
+          className="group  hover:bg-neutral-500 text-cyan-900 hover:text-white rounded-full  px-4 border border-cyan-900"
           onClick={onClose}
         >
           {t["close"]}

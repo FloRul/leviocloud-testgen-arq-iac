@@ -92,6 +92,7 @@ export async function fetchFiles(type: string): Promise<ServerFile[]> {
     }
 
     const data: ServerFile[] = await response.json();
+
     return data;
   } catch (error) {
     console.error("Error fetching files:", error);
@@ -203,6 +204,9 @@ export const getLink = async (
 
 export async function getJobs(): Promise<Job[]> {
   try {
+    console.log(
+      "--------------------------------------------------------------------------------------------------------------------------"
+    );
     const idToken = await getToken();
     const url = `${import.meta.env.VITE_BASE_URL}/jobs`;
 
@@ -219,7 +223,12 @@ export async function getJobs(): Promise<Job[]> {
     }
 
     const data: Job[] = await response.json();
-    return data;
+    const sortedData = data.sort((a, b) => {
+      const dateA = new Date(a.updated_at);
+      const dateB = new Date(b.updated_at);
+      return dateB.getTime() - dateA.getTime(); // Tri décroissant
+    });
+    return sortedData;
   } catch (error) {
     console.error("Error fetching files:", error);
     return [];

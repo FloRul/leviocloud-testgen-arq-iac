@@ -6,7 +6,7 @@ export interface Job {
   input_files: ServerFile[];
   prompt: string;
   job_id: string;
-  job_status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
+  job_status: "PENDING" | "PROCESSING" | "COMPLETED" | "ERROR";
 }
 
 export interface ServerFile {

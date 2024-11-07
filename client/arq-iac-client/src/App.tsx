@@ -2,27 +2,15 @@ import type { WithAuthenticatorProps } from "@aws-amplify/ui-react";
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import { Amplify } from "aws-amplify";
-import { useEffect } from "react";
 import config from "./amplify-configuration";
 import ClaudeForm from "./components/claude-form/claude-form";
-import { FileProvider } from "./components/file-context/file-context";
+import { FileProvider } from "./components/contexts/file-context";
+import { JobProvider } from "./components/contexts/job-context";
 import Header from "./components/header/header";
 import JobList from "./components/jobs/job-list";
-import { getIdToken } from "./utils/auth-utils";
 Amplify.configure(config);
 
-export function App({ signOut, user }: WithAuthenticatorProps) {
-  const handleGetIdToken = async () => {
-    const idToken = await getIdToken();
-    console.log("ID Token:", idToken);
-    // Utilisez idToken pour vos appels API ici
-  };
-  useEffect(() => {
-    if (user) {
-      handleGetIdToken();
-    }
-  }, [user]);
-
+export function App({ signOut }: WithAuthenticatorProps) {
   return (
     <>
       <Header signOut={signOut} />
@@ -55,26 +43,28 @@ export function App({ signOut, user }: WithAuthenticatorProps) {
               </div>
             </div>
           </div>
-          <div className="max-w-full w-xl px-section mx-auto my-16 md:my-20">
-            <div className="xs:bg-white xs:rounded-3xl xs:p-16">
-              <div className="pf-form-section pt-10 first:pt-0">
-                <div className="grid grid-cols-1 gap-8 sm:grid-cols-6">
-                  <FileProvider>
-                    <ClaudeForm />
-                  </FileProvider>
+          <JobProvider>
+            <div className="max-w-full w-xl px-section mx-auto my-16 md:my-20">
+              <div className="xs:bg-white xs:rounded-3xl xs:p-16">
+                <div className="pf-form-section pt-10 first:pt-0">
+                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-6">
+                    <FileProvider>
+                      <ClaudeForm />
+                    </FileProvider>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="max-w-full w-xl px-section mx-auto my-16 md:my-20">
-            <div className="xs:bg-white xs:rounded-3xl xs:p-16">
-              <div className="pf-form-section pt-10 first:pt-0">
-                <div className="grid grid-cols-1 gap-8 sm:grid-cols-6">
-                  <JobList />
+            <div className="max-w-full w-xl px-section mx-auto my-16 md:my-20">
+              <div className="xs:bg-white xs:rounded-3xl xs:p-16">
+                <div className="pf-form-section pt-10 first:pt-0">
+                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-6">
+                    <JobList />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </JobProvider>
         </div>
         <div className="h-section-extension bg-grey-200 rounded-b-section relative z-10 -mb-section-extension"></div>
       </main>
