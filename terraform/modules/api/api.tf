@@ -1,8 +1,19 @@
 ﻿locals { api_name = "api" }
 data "aws_region" "current" {}
+
 data "aws_cognito_user_pool" "user_pool" {
   user_pool_id = var.cognito_user_pool_id
 }
+
+data "aws_cognito_identity_pool" "this" {
+  identity_pool_name = var.cognito_identity_pool_name
+}
+
+data "aws_cognito_user_pool_client" "client" {
+  client_id    = var.aws_cognito_user_pool_client_id
+  user_pool_id = data.aws_cognito_user_pool.user_pool.id
+}
+
 #checkov:skip=CKV_AWS_225: "AWS API Gateway method settings do not enable caching" - No need for caching
 #checkov:skip=CKV2_AWS_51: "Ensure AWS API Gateway endpoints uses client certificate authentication" - No need for client certificate authentication
 resource "aws_api_gateway_rest_api" "files_api" {

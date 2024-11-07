@@ -32,16 +32,18 @@ resource "aws_s3_bucket" "code_storage" {
 }
 
 module "api" {
-  source                = "./modules/api"
-  environment           = var.environment
-  project_name          = local.project_name
-  lambda_storage_bucket = aws_s3_bucket.code_storage.id
-  cognito_user_pool_id  = var.cognito_user_pool_id
-  metadata_table        = module.storage.metadata_table
-  user_files_bucket     = module.storage.user_files_bucket
-  inference_queue       = module.batch_inference.inference_queue
-  jobs_status_table     = module.batch_inference.inference_jobs_status_table
-  output_bucket         = module.storage.file_process_output_bucket
+  source                          = "./modules/api"
+  environment                     = var.environment
+  project_name                    = local.project_name
+  lambda_storage_bucket           = aws_s3_bucket.code_storage.id
+  cognito_user_pool_id            = var.cognito_user_pool_id
+  metadata_table                  = module.storage.metadata_table
+  user_files_bucket               = module.storage.user_files_bucket
+  inference_queue                 = module.batch_inference.inference_queue
+  jobs_status_table               = module.batch_inference.inference_jobs_status_table
+  output_bucket                   = module.storage.file_process_output_bucket
+  aws_cognito_user_pool_client_id = var.aws_cognito_user_pool_client_id
+  cognito_identity_pool_name      = var.cognito_identity_pool_name
 }
 
 module "client_hosting" {
