@@ -20,6 +20,16 @@ variable "cognito_user_pool_id" {
   nullable = false
 }
 
+variable "cognito_identity_pool_name" {
+  type     = string
+  nullable = false
+}
+
+variable "aws_cognito_user_pool_client_id" {
+  type     = string
+  nullable = false
+}
+
 variable "user_files_bucket" {
   type = object({
     name = string

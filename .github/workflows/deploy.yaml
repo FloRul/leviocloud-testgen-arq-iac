@@ -8,7 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     env:
       AWS_REGION: ca-central-1
 
@@ -40,14 +39,43 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      # - name: Extract S3 bucket name and cloudfront distribution
-      #   run: | 
-      #     echo "S3_BUCKET_NAME=$(terraform output -raw website_bucket_name)" >> $GITHUB_ENV
-      #     echo "CLOUDFRONT_DISTRIBUTION_ID=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
-      #   working-directory: ./terraform
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
 
-      # - name: Sync content to S3
-      #   run: aws s3 sync ./client/ s3://$S3_BUCKET_NAME --delete
-      # - name: Invalidate CloudFront
-      #   run: aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+      - name: Install dependencies
+        working-directory: ./client/arq-iac-client
+        run: npm install
 
+      - name: Build the app
+        working-directory: ./client/arq-iac-client
+        run: npm run build
+
+      - name: Verify build directory
+        run: ls ./client/arq-iac-client/
+
+      - name: Extract S3 bucket name and cloudfront distribution
+        working-directory: ./terraform
+        run: |
+          echo "S3_BUCKET_NAME=$(terraform output -raw website_bucket_name)" >> $GITHUB_ENV
+          echo "CLOUDFRONT_DISTRIBUTION_ID=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
+          echo "API_BASE_URL=$(terraform output -raw base_url)" >> $GITHUB_ENV
+          echo "IDENTITY_POOL_ID=$(terraform output -raw identity_pool_id)" >> $GITHUB_ENV
+          echo "USER_POOL_CLIENT_ID=$(terraform output -raw user_pool_client_id)" >> $GITHUB_ENV
+          echo "USER_POOL_ID=$(terraform output -raw user_pool_id)" >> $GITHUB_ENV
+
+      - name: Compose .env file
+        working-directory: ./client/arq-iac-client/dist
+        run: |
+          echo "VITE_BASE_URL=$API_BASE_URL" >> .env
+          echo "VITE_IDENTITY_POOL_ID=$IDENTITY_POOL_ID" >> .env
+          echo "VITE_USER_POOL_CLIENT_ID=$USER_POOL_CLIENT_ID" >> .env
+          echo "VITE_USER_POOL_ID=$USER_POOL_ID" >> .env
+
+      - name: Sync content to S3
+        working-directory: ./client/arq-iac-client/dist
+        run: aws s3 sync . s3://$S3_BUCKET_NAME --delete
+
+      - name: Invalidate CloudFront
+        run: aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
