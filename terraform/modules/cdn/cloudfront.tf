@@ -1,11 +1,15 @@
 ﻿data "aws_region" "current" {}
 
 resource "aws_cloudfront_distribution" "this" {
-  depends_on      = [aws_cloudfront_origin_access_control.this]
-  enabled         = true
-  is_ipv6_enabled = true
-  comment         = "CloudFront Distribution for ${var.project_name}-${var.environment} client and API"
+  depends_on          = [aws_cloudfront_origin_access_control.this]
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "CloudFront Distribution for ${var.project_name}-${var.environment} client and API"
   default_root_object = "index.html"
+
+  aliases = [var.cloudfront_alias]
+
+  price_class = "PriceClass_200"
 
   # Configure the origin for the S3 bucket
   origin {
@@ -76,7 +80,9 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = var.acm_certificate_arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 }
 
