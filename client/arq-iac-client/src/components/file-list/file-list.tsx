@@ -1,4 +1,3 @@
-// file-list.tsx
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "../../context/languages-context";
 import { deleteFiles } from "../../utils/api-utils";
@@ -10,18 +9,20 @@ import FileUploader from "../file-uploader/file-uploader";
 import Modal from "../modal/modal";
 
 interface FileListProps {
-  selectedFiles: Set<string>; // Fichiers actuellement sélectionnés
-  handleFileSelection: (fileId: string) => void; // Fonction de sélection/désélection
+  selectedFiles: Set<string>;
+  handleFileSelection: (fileId: string) => void;
+  handleAllFileSelection: (fileIds: string[]) => void;
 }
 
 const FileList: React.FC<FileListProps> = ({
   selectedFiles,
   handleFileSelection,
+  handleAllFileSelection,
 }) => {
   const { language } = useLanguage();
   const t = languages[language];
 
-  const { setFiles: updateFiles, files: contextFiles } = useFileContext(); // Récupérer les fichiers du contexte
+  const { setFiles: updateFiles, files: contextFiles } = useFileContext();
   const [filteredFiles, setFilteredFiles] = useState<ServerFile[]>([]);
   const [filter, setFilter] = useState<string>("");
 
@@ -34,10 +35,9 @@ const FileList: React.FC<FileListProps> = ({
     setIsModalOpen(false);
   };
 
-  // Filtrage des fichiers en fonction de la recherche
   useEffect(() => {
     if (filter === "") {
-      setFilteredFiles(contextFiles); // Utilisation de contextFiles au lieu de files
+      setFilteredFiles(contextFiles);
     } else {
       setFilteredFiles(
         contextFiles.filter((file) =>
@@ -47,24 +47,23 @@ const FileList: React.FC<FileListProps> = ({
     }
   }, [filter, contextFiles]);
 
-  // Gérer la sélection de tous les fichiers
   const handleSelectAll = () => {
     if (
       filteredFiles.length === 0 ||
       selectedFiles.size === filteredFiles.length
     ) {
-      filteredFiles.forEach((file) => handleFileSelection(file.file_id)); // Désélectionner tous
+      handleAllFileSelection([]);
     } else {
-      filteredFiles.forEach((file) => handleFileSelection(file.file_id)); // Sélectionner tous
+      const allFileId: string[] = [];
+      filteredFiles.forEach((file) => allFileId.push(file.file_id));
+      handleAllFileSelection(allFileId);
     }
   };
 
-  // Gérer la suppression des fichiers sélectionnés
   const handleDelete = async () => {
     if (selectedFiles.size > 0) {
       try {
-        await deleteFiles(Array.from(selectedFiles));
-        // Actualiser la liste des fichiers après suppression
+        await deleteFiles([...selectedFiles]);
         updateFiles(
           contextFiles.filter((file) => !selectedFiles.has(file.file_id))
         );
@@ -78,7 +77,6 @@ const FileList: React.FC<FileListProps> = ({
 
   return (
     <div className="file-list pf-form-field sm:col-span-6">
-      {/* Champ de recherche pour filtrer les fichiers */}
       <input
         type="text"
         placeholder={t["search-files"]}
@@ -86,8 +84,6 @@ const FileList: React.FC<FileListProps> = ({
         onChange={(e) => setFilter(e.target.value)}
         className="search-input"
       />
-
-      {/* Tableau des fichiers */}
       <table className="file-table w-full">
         <thead>
           <tr>
@@ -131,12 +127,9 @@ const FileList: React.FC<FileListProps> = ({
             ))}
         </tbody>
       </table>
-
       <Modal isOpen={isModalOpen}>
         <FileUploader onClose={closeModal} />
       </Modal>
-
-      {/* Bouton de suppression des fichiers sélectionnés */}
       <div className="sm:col-span-6 text-center mt-4">
         <button
           type="button"

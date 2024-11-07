@@ -1,4 +1,3 @@
-// file-uploader.tsx
 import React, { useState } from "react";
 import { useLanguage } from "../../context/languages-context";
 import { fetchFiles, uploadFiles } from "../../utils/api-utils";
@@ -6,7 +5,7 @@ import { languages } from "../../utils/languages";
 import { useFileContext } from "../file-context/file-context";
 
 interface FileUploaderProps {
-  onClose: () => void; // Fonction pour fermer la modale
+  onClose: () => void;
 }
 
 const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
@@ -20,7 +19,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
     const selectedFiles = event.target.files;
     if (!selectedFiles) return;
 
-    const fileArray = Array.from(selectedFiles);
+    const fileArray = [...selectedFiles];
+
     const allowedTypes = ["text/plain"];
     const exceedsMaxSize = fileArray.some(
       (file) => file.size > 5 * 1024 * 1024
@@ -45,13 +45,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
         await uploadFiles(files);
         const updatedFiles = await fetchFiles("");
         updateFiles(updatedFiles);
-        setFiles([]); // Réinitialiser les fichiers après l'upload
+        setFiles([]);
 
         const fileInput = document.getElementById(
           "sourceCodeFile"
         ) as HTMLInputElement;
         if (fileInput) {
-          fileInput.value = ""; // Réinitialiser l'input
+          fileInput.value = "";
         }
       } catch (error) {
         setErrorMessage("Erreur lors de l'upload des fichiers");

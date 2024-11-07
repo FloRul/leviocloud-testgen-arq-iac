@@ -46,6 +46,11 @@ const ClaudeForm: React.FC = () => {
     setSelectedFiles(updatedSelection);
   };
 
+  const handleAllFileSelection = (fileIds: string[]) => {
+    const updatedSelection = new Set(fileIds);
+    setSelectedFiles(updatedSelection);
+  };
+
   // Gérer la soumission du formulaire
   const handleSubmit = async () => {
     console.log({ selectedFiles, prompt, selectedModel });
@@ -59,7 +64,7 @@ const ClaudeForm: React.FC = () => {
 
     try {
       // Envoi des données à l'API (modèle, fichiers et prompt)
-      await submitForm(selectedModel, Array.from(selectedFiles), prompt);
+      await submitForm(selectedModel, [...selectedFiles], prompt);
     } catch (error) {
       setError("Erreur lors de l'envoi du formulaire.");
     } finally {
@@ -76,6 +81,7 @@ const ClaudeForm: React.FC = () => {
       <FileList
         selectedFiles={selectedFiles}
         handleFileSelection={handleFileSelection}
+        handleAllFileSelection={handleAllFileSelection}
       />
 
       <PromptInput prompt={prompt} setPrompt={setPrompt} />
