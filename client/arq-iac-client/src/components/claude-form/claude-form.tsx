@@ -19,6 +19,7 @@ const ClaudeForm: React.FC = () => {
   const [prompt, setPrompt] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>("");
+  console.log(error); //TODO gerer les validations
 
   useEffect(() => {
     const loadFiles = async () => {
