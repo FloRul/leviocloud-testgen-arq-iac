@@ -80,7 +80,7 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   viewer_certificate {
-    iam_certificate_id = var.acm_certificate_arn
+    acm_certificate_arn = var.acm_certificate_arn
   }
 }
 
