@@ -77,7 +77,7 @@ const JobList: React.FC = () => {
 
   return (
     <div className="file-list pf-form-field sm:col-span-6">
-      <h2>{t["list-of-jobs"]}</h2>
+      <h1 className="mb-10">{t["list-of-jobs"]}</h1>
 
       <div className="flex justify-between items-center mb-4">
         <input
@@ -85,8 +85,52 @@ const JobList: React.FC = () => {
           placeholder={t["search-jobs-placeholder"]}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="search-input w-4/12 mr-2"
+          className="search-input w-6/12 mr-2 rounded-lg"
         />
+        <div className="flex space-x-2 ml-auto">
+          {totalPages > 1 && (
+            <div className="flex justify-between items-center mb-4 mt-4">
+              <nav aria-label="Page navigation example">
+                <ul className="inline-flex -space-x-px text-sm">
+                  <li>
+                    <button
+                      onClick={() => paginate(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="flex items-center justify-center px-3 h-8 leading-tight text-gray-300 bg-white border border-e-0 border-gray-100 rounded-s-lg hover:bg-gray-100 hover:text-gray-500 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200 dark:hover:bg-gray-500 dark:hover:text-white"
+                    >
+                      {t["previous"]}
+                    </button>
+                  </li>
+
+                  {pageNumbers.map((number) => (
+                    <li key={number}>
+                      <button
+                        onClick={() => paginate(number)}
+                        className={`flex items-center justify-center px-3 h-8 leading-tight text-gray-300 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-500 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200 dark:hover:bg-gray-500 dark:hover:text-white ${
+                          number === currentPage
+                            ? "text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:bg-gray-500 dark:text-white"
+                            : ""
+                        }`}
+                      >
+                        {number}
+                      </button>
+                    </li>
+                  ))}
+
+                  <li>
+                    <button
+                      onClick={() => paginate(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="flex items-center justify-center px-3 h-8 leading-tight text-gray-300 bg-white border border-gray-100 rounded-e-lg hover:bg-gray-100 hover:text-gray-500 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200 dark:hover:bg-gray-500 dark:hover:text-white"
+                    >
+                      {t["next"]}
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          )}
+        </div>
       </div>
 
       {currentJobs.length > 0 ? (
@@ -95,7 +139,6 @@ const JobList: React.FC = () => {
         <div>{t["no-jobs-found"]}</div>
       )}
 
-      {/* Button refresh centered */}
       <div className="flex justify-center mt-4">
         <button
           type="button"
@@ -103,68 +146,17 @@ const JobList: React.FC = () => {
           onClick={handleSearch}
         >
           <svg
-            className="w-5 h-5"
-            aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 14 10"
+            height="24px"
+            viewBox="0 -960 960 960"
+            width="24px"
+            fill="#e8eaed"
           >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M1 5h12m0 0L9 1m4 4L9 9"
-            />
+            <path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z" />
           </svg>
           <span className="sr-only">{t["refresh-search"]}</span>
         </button>
       </div>
-
-      {/* Pagination - Only show if there is more than 1 page */}
-      {totalPages > 1 && (
-        <div className="flex justify-between items-center mb-4 mt-4">
-          <nav aria-label="Page navigation example">
-            <ul className="inline-flex -space-x-px text-sm">
-              <li>
-                <button
-                  onClick={() => paginate(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  {t["previous"]}
-                </button>
-              </li>
-
-              {/* Dynamically generate page buttons */}
-              {pageNumbers.map((number) => (
-                <li key={number}>
-                  <button
-                    onClick={() => paginate(number)}
-                    className={`flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${
-                      number === currentPage
-                        ? "text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:bg-gray-700 dark:text-white"
-                        : ""
-                    }`}
-                  >
-                    {number}
-                  </button>
-                </li>
-              ))}
-
-              <li>
-                <button
-                  onClick={() => paginate(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  {t["next"]}
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      )}
     </div>
   );
 };

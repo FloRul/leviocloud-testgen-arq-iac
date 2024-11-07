@@ -62,6 +62,14 @@ export function App({ signOut, user }: WithAuthenticatorProps) {
                   <FileProvider>
                     <ClaudeForm />
                   </FileProvider>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="max-w-full w-xl px-section mx-auto my-16 md:my-20">
+            <div className="xs:bg-white xs:rounded-3xl xs:p-16">
+              <div className="pf-form-section pt-10 first:pt-0">
+                <div className="grid grid-cols-1 gap-8 sm:grid-cols-6">
                   <JobList />
                 </div>
               </div>

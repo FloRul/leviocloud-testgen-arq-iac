@@ -1,4 +1,6 @@
 import React from "react";
+import { useLanguage } from "../../context/languages-context";
+import { languages } from "../../utils/languages";
 
 interface PromptInputProps {
   prompt: string;
@@ -6,6 +8,8 @@ interface PromptInputProps {
 }
 
 const PromptInput: React.FC<PromptInputProps> = ({ prompt, setPrompt }) => {
+  const { language } = useLanguage();
+  const t = languages[language];
   return (
     <div className="pf-form-field sm:col-span-6">
       <label
@@ -13,7 +17,8 @@ const PromptInput: React.FC<PromptInputProps> = ({ prompt, setPrompt }) => {
         htmlFor="prompt"
         data-key="prompt-label"
       >
-        Prompt
+        {t["prompt-label"]}
+        <span className="text-red-700">*</span>
       </label>
       <textarea
         id="prompt"

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "../../context/languages-context";
-import { fetchFiles, submitForm } from "../../utils/api-utils"; // Fonction pour soumettre à l'API
+import { fetchFiles, submitForm } from "../../utils/api-utils";
 import { languages } from "../../utils/languages";
 import { useFileContext } from "../file-context/file-context";
 import FileList from "../file-list/file-list";
@@ -20,11 +20,10 @@ const ClaudeForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>("");
 
-  // Utilisez un effet pour mettre à jour les fichiers du S3 à chaque chargement
   useEffect(() => {
     const loadFiles = async () => {
       try {
-        const files = await fetchFiles(""); // Récupère tous les fichiers disponibles dans le S3
+        const files = await fetchFiles("");
         setFiles(files);
       } catch (error) {
         console.error("Erreur lors de la récupération des fichiers", error);
@@ -35,7 +34,6 @@ const ClaudeForm: React.FC = () => {
     loadFiles();
   }, [setFiles]);
 
-  // Gérer la sélection de fichiers dans FileList
   const handleFileSelection = (fileId: string) => {
     const updatedSelection = new Set(selectedFiles);
     if (updatedSelection.has(fileId)) {
@@ -51,19 +49,16 @@ const ClaudeForm: React.FC = () => {
     setSelectedFiles(updatedSelection);
   };
 
-  // Gérer la soumission du formulaire
   const handleSubmit = async () => {
-    console.log({ selectedFiles, prompt, selectedModel });
     if (!selectedModel || selectedFiles.size === 0 || !prompt) {
       setError(t["error-message"]);
       return;
     }
 
     setIsSubmitting(true);
-    setError(""); // Réinitialiser les erreurs
+    setError("");
 
     try {
-      // Envoi des données à l'API (modèle, fichiers et prompt)
       await submitForm(selectedModel, [...selectedFiles], prompt);
     } catch (error) {
       setError("Erreur lors de l'envoi du formulaire.");
@@ -72,10 +67,10 @@ const ClaudeForm: React.FC = () => {
     }
   };
 
+  const isFormInvalid = !prompt || selectedFiles.size === 0;
+
   return (
     <>
-      <h1>{t["main-title"]}</h1>
-
       <ModelSelector setSelectedModel={setSelectedModel} />
 
       <FileList
@@ -86,9 +81,9 @@ const ClaudeForm: React.FC = () => {
 
       <PromptInput prompt={prompt} setPrompt={setPrompt} />
 
-      {error && (
+      {isFormInvalid && (
         <div className="error-message sm:col-span-6 text-center mt-4 text-red-700">
-          {error}
+          <span>{t["fields-required"]}</span>
         </div>
       )}
 
@@ -96,9 +91,13 @@ const ClaudeForm: React.FC = () => {
         <button
           id="uploadButton"
           type="button"
-          className="group pf-button pf-button--lg pf-button--primary pf-transition-outline h-focus-state"
+          className={`${
+            isFormInvalid || isSubmitting
+              ? "bg-slate-600 text-white rounded-full"
+              : "bg-cyan-900 hover:bg-green-500 text-white rounded-full"
+          }`}
           onClick={handleSubmit}
-          disabled={isSubmitting}
+          disabled={isFormInvalid || isSubmitting}
         >
           <span className="relative" data-key="upload-button-span">
             {isSubmitting ? t["submitting"] : t["submit"]}
