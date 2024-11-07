@@ -1,5 +1,6 @@
 ﻿import json
 import os
+import time
 import boto3
 import re
 from typing import List, Optional, Dict, Any
@@ -15,7 +16,6 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 
 processor = BatchProcessor(event_type=EventType.SQS)
 from botocore.config import Config
-from botocore.exceptions import ClientError
 
 # Initialize Powertools
 logger = Logger()
@@ -115,7 +115,7 @@ def call_bedrock(
 
 @tracer.capture_method
 def process_file(
-    file_content: str, prompt: str, job_id: str, file_id: str
+    file_content: str, prompt: str, job_id: str, file_id: str, user_id: str
 ) -> Dict[str, Any]:
     """Process a single file content."""
 
@@ -154,20 +154,12 @@ def process_file(
         metrics.add_metric(name="FailedResponses", unit=MetricUnit.Count, value=1)
 
     # Store response in S3
-    result_key = f"{job_id}/{file_id}.txt"
+    result_key = f"{user_id}/{job_id}/{file_id}.txt"
     s3_client.put_object(
         Bucket=Config.OUTPUT_BUCKET,
         Key=result_key,
         Body=(output).encode("utf-8"),
     )
-
-    result = {
-        "resultKey": result_key,
-        "status": "success" if valid_response else "failed",
-        "callCount": call_count,
-    }
-
-    return result
 
 
 @tracer.capture_method
@@ -175,45 +167,56 @@ def record_handler(record: SQSRecord):
     payload = record.json_body
     logger.info(payload)
     job_id = payload.get("job_id")
+    user_id = payload.get("user_id")
     job_table.update_item(
-        Key={"job_id": job_id, "user_id": payload.get("user_id")},
-        UpdateExpression="SET job_status=:s",
-        ExpressionAttributeValues={":s": "PROCESSING"},
+        Key={"user_id": user_id, "job_id": job_id},
+        UpdateExpression="SET job_status=:s, updated_at=:u",
+        ExpressionAttributeValues={
+            ":s": "PROCESSING",
+            ":u": int(time.time()),
+        },
     )
     try:
         # extract file ids list
-        file_keys = [file["s3_key"] for file in payload["files"]]
+        file_keys = [file["file_id"] for file in payload["input_files"]]
 
         # extract prompt
         prompt = payload["prompt"]
 
         # retrieve files
-        for key in file_keys:
+        for file_id in file_keys:
             file_content = (
-                s3_client.get_object(Bucket=Config.INPUT_BUCKET, Key=key)["Body"]
+                s3_client.get_object(Bucket=Config.INPUT_BUCKET, Key=f"{user_id}/{file_id}")["Body"]
                 .read()
                 .decode("utf-8")
             )
-            error_code = e.response["Error"]["Code"]
-            if error_code == "NoSuchKey":
-                logger.warning(f"File {key} not found")
 
-            # process file
             process_file(
-                file_content=file_content, prompt=prompt, job_id=job_id, file_id=key
+                file_content=file_content,
+                prompt=prompt,
+                job_id=job_id,
+                file_id=file_id,
+                user_id=user_id,
             )
 
         job_table.update_item(
-            Key={"job_id": job_id, "user_id": payload.get("user_id")},
-            UpdateExpression="SET status=:s",
-            ExpressionAttributeValues={":s": "COMPLETED"},
+            Key={"user_id": user_id, "job_id": job_id},
+            UpdateExpression="SET job_status=:s, updated_at=:u",
+            ExpressionAttributeValues={
+                ":s": "COMPLETED",
+                ":u": int(time.time()),
+            },
         )
     except Exception as e:
         logger.error(f"Error processing job {job_id}: {str(e)}")
         job_table.update_item(
-            Key={"job_id": job_id},
-            UpdateExpression="SET status=:s, error=:e",
-            ExpressionAttributeValues={":s": "ERROR", ":e": str(e)},
+            Key={"user_id": user_id, "job_id": job_id},
+            UpdateExpression="SET job_status=:s, job_error=:e, updated_at=:u",
+            ExpressionAttributeValues={
+                ":s": "ERROR",
+                ":e": str(e),
+                ":u": int(time.time()),
+            },
         )
 
 

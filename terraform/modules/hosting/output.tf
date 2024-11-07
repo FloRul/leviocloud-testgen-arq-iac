@@ -1,7 +1,10 @@
-﻿output "website_bucket_name" {
-  value = module.s3.s3_bucket_id
+﻿output "s3_bucket" {
+  value = {
+    name = module.s3.s3_bucket_id
+    arn  = module.s3.s3_bucket_arn
+  }
 }
 
-output "cloudfront_distribution_id" {
-  value = data.aws_cloudfront_distribution.existing.id
+output "s3_bucket_domain_name" {
+  value = module.s3.s3_bucket_bucket_regional_domain_name
 }

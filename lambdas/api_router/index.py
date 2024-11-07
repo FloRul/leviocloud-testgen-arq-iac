@@ -108,7 +108,6 @@ def upload_file():
             "filename": filename,
             "content_type": content_type,
             "size": len(file_content),
-            "s3_key": key,
             "last_modified": int(time.time()),
         }
 
@@ -223,7 +222,7 @@ def create_batch_inference_job():
             "job_id": job_id,
             "job_status": "PENDING",
             "input_files": files,
-            "prompt": body,
+            "prompt": prompt,
         }
 
         sqs_client.send_message(
@@ -272,8 +271,9 @@ def create_batch_inference_job():
             {
                 "job_id": job_id,
                 "status": "PENDING",
-                "input_files": files,
                 "prompt": prompt,
+                "created_at": current_time,
+                "input_files": files,
             }
         ),
     )
@@ -323,7 +323,7 @@ def get_download_url(job_id: str, file_id: str):
             raise NotFoundError(f"File {file_id} not found in job {job_id}")
 
         # Generate a presigned URL for the file
-        s3_key = f"{user_id}/{file_id}.txt"
+        s3_key = f"{user_id}/{job_id}/{file_id}.txt"
         presigned_url = s3_client.generate_presigned_url(
             ClientMethod="get_object",
             Params={"Bucket": OUTPUT_BUCKET_NAME, "Key": s3_key},

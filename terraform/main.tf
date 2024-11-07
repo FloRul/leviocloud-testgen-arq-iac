@@ -75,3 +75,14 @@ module "batch_inference" {
   output_bucket         = module.storage.file_process_output_bucket
 }
 
+module "cloudfront" {
+  source       = "./modules/cdn"
+  environment  = var.environment
+  project_name = local.project_name
+
+  api_gateway_id         = module.api.api_gateway_id
+  api_gateway_stage_name = module.api.api_gateway_stage_name
+
+  s3_bucket             = module.client_hosting.s3_bucket
+  s3_bucket_domain_name = module.client_hosting.s3_bucket_domain_name
+}
