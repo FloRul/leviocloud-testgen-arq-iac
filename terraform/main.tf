@@ -83,6 +83,7 @@ module "cloudfront" {
   project_name = local.project_name
 
   cloudfront_alias = var.cloudfront_alias
+  acm_certificate_id = var.acm_certificate_id
 
   api_gateway_id         = module.api.api_gateway_id
   api_gateway_stage_name = module.api.api_gateway_stage_name

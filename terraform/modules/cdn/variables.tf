@@ -36,3 +36,8 @@ variable "cloudfront_alias" {
   type     = string
   nullable = false
 }
+
+variable "acm_certificate_id" {
+  type     = string
+  nullable = false
+}

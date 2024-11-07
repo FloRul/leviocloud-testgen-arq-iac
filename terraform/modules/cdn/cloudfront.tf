@@ -9,6 +9,8 @@ resource "aws_cloudfront_distribution" "this" {
 
   aliases = [var.cloudfront_alias]
 
+  
+
   # Configure the origin for the S3 bucket
   origin {
     domain_name              = var.s3_bucket_domain_name
@@ -78,7 +80,7 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    iam_certificate_id = var.acm_certificate_id
   }
 }
 
