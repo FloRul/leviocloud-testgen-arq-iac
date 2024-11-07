@@ -1,5 +1,5 @@
 import React, { createContext, ReactNode, useContext, useState } from "react";
-import { ServerFile } from "../../utils/api-utils";
+import { ServerFile } from "../../utils/interfaces";
 
 // Définir le type de contexte
 interface FileContextType {
