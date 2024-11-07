@@ -144,10 +144,8 @@ def delete_file(file_id: str):
         if "Item" not in response:
             raise NotFoundError("File not found")
 
-        s3_key = response["Item"]["s3_key"]
-
         # Delete from S3
-        s3_client.delete_object(Bucket=INPUT_BUCKET_NAME, Key=s3_key)
+        s3_client.delete_object(Bucket=INPUT_BUCKET_NAME, Key=f"{user_id}/{file_id}")
 
         # Delete metadata
         metadata_table.delete_item(Key={"user_id": user_id, "file_id": file_id})
