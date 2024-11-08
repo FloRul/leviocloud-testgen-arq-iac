@@ -11,3 +11,11 @@
 - [X] Optimize pipeline to reduce cdn invalidations (right now it is one invalidation for every code push)
 - [ ] Friendly names for result files
 - [ ] Add tests
+- [ ] API - constraint on file amount, file type etc...
+- 
+
+
+## Notes
+garder les dichier input+output dans le resultat des jobs.
+supression manuelle des jobs
+lifecycle sur les fichiers d'input
