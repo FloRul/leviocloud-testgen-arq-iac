@@ -1,4 +1,5 @@
-﻿import os
+﻿import base64
+import os
 import simplejson as json
 import uuid
 from typing import Dict, Any, List
@@ -69,7 +70,11 @@ def upload_file():
     if not user_id:
         raise UnauthorizedError("User ID not found in claims")
 
-    file_content = app.current_event.body
+    if app.current_event.is_base64_encoded:
+        # Decode base64 and then decode bytes to string
+        file_content = base64.b64decode(app.current_event.body).decode("utf-8")
+    else:
+        file_content = app.current_event.body
 
     # Check file size
     if len(file_content) > MAX_FILE_SIZE:
