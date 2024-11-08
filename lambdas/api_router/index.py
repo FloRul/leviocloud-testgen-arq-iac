@@ -75,6 +75,8 @@ def upload_file():
 
     # Decode base64 content
     try:
+        undecoded = app.current_event.body
+        logger.info(f"undecoded : {undecoded}")
         file_content = base64.b64decode(app.current_event.body)
         logger.info(f"decoded first time : {file_content}")
         decoded_second = base64.b64decode(file_content)

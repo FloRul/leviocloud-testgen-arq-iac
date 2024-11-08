@@ -155,7 +155,7 @@ def process_file(
         metrics.add_metric(name="FailedResponses", unit=MetricUnit.Count, value=1)
 
     # Store response in S3
-    result_key = f"{user_id}/{job_id}/{file_id}.txt"
+    result_key = f"{user_id}/{job_id}/{file_id}_result.txt"
     s3_client.put_object(
         Bucket=Config.OUTPUT_BUCKET,
         Key=result_key,
