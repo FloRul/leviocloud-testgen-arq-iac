@@ -92,7 +92,7 @@ def upload_file():
     filename = app.current_event.headers.get("filename", "unnamed-file")
 
     # Generate file_id as the hash of the filename
-    file_id = hashlib.sha256(filename.encode()).hexdigest()
+    file_id = hashlib.sha256(filename.encode()).hexdigest()[0:8]
     key = f"{user_id}/{file_id}"
 
     try:
