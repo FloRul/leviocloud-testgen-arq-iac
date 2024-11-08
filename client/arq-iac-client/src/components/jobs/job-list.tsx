@@ -9,7 +9,7 @@ const JobList: React.FC = () => {
   const { language } = useLanguage();
   const t = languages[language];
 
-  const { jobs } = useJobContext();
+  const { jobs, loadJobs: refreshJobs } = useJobContext();
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -46,7 +46,7 @@ const JobList: React.FC = () => {
         )
       );
     }
-  }, [searchQuery, jobs]);
+  }, [searchQuery, jobs, filteredJobs]);
 
   const indexOfLastJob = currentPage * itemsPerPage;
   const indexOfFirstJob = indexOfLastJob - itemsPerPage;
@@ -56,6 +56,7 @@ const JobList: React.FC = () => {
 
   const handleSearch = () => {
     setLoading(true);
+    refreshJobs(true);
     loadJobs();
   };
 
@@ -75,7 +76,14 @@ const JobList: React.FC = () => {
 
   return (
     <div className="file-list pf-form-field sm:col-span-6">
-      <h1 className="mb-10">{t["list-of-jobs"]}</h1>
+      <div className="file-list pf-form-field sm:col-span-6 border-b border-secondary-500">
+        <h2
+          className="text-h3 uppercase font-display font-semibold tracking-[0.3em] mb-6 mt-0"
+          data-key="main-title"
+        >
+          {t["list-of-jobs"]}
+        </h2>
+      </div>
 
       <div className="flex justify-between items-center mb-4">
         <input

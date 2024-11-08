@@ -82,7 +82,7 @@ const FileList: React.FC<FileListProps> = ({
         htmlFor="modelSelect"
         data-key="claude-model-label"
       >
-        {t["claude-files-label"]}
+        1 - {t["claude-files-label"]}
         <span className="text-red-700">*</span>
       </label>
       <div className="flex items-center mb-2">

@@ -31,18 +31,6 @@ export function App({ signOut }: WithAuthenticatorProps) {
         </div>
 
         <div className="bg-grey-200 h-include-margin pt-section-extension sm:-mb-8 md:-mb-20">
-          <div className="max-w-full w-xl px-section mx-auto my-8 md:my-12">
-            <div className="pf-title-separator mb-12 mt-16 sm:mb-16 sm:mt-24 pb-3 border-b border-secondary-500">
-              <div className="max-w-screen-lg h-remove-margin">
-                <h2
-                  className="text-h3 uppercase font-display font-semibold tracking-[0.3em] mb-6 mt-0"
-                  data-key="main-title"
-                >
-                  IA générative
-                </h2>
-              </div>
-            </div>
-          </div>
           <JobProvider>
             <div className="max-w-full w-xl px-section mx-auto my-16 md:my-20">
               <div className="xs:bg-white xs:rounded-3xl xs:p-16">

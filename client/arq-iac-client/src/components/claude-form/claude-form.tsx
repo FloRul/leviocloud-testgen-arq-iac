@@ -78,8 +78,13 @@ const ClaudeForm: React.FC = () => {
 
   return (
     <>
-      <div className="file-list pf-form-field sm:col-span-6">
-        <h1 className="mb-10">{t["new-job"]}</h1>
+      <div className="file-list pf-form-field sm:col-span-6 border-b border-secondary-500">
+        <h2
+          className="text-h3 uppercase font-display font-semibold tracking-[0.3em] mb-6 mt-0"
+          data-key="main-title"
+        >
+          {t["main-title"]}
+        </h2>
       </div>
 
       <FileList

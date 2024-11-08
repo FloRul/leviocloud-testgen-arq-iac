@@ -140,7 +140,6 @@ export const submitForm = async (
 ): Promise<any> => {
   try {
     const idToken = await getToken();
-    console.log({ selectedFiles });
     const formData = {
       files: selectedFiles,
       prompt: prompt,
@@ -204,9 +203,6 @@ export const getLink = async (
 
 export async function getJobs(): Promise<Job[]> {
   try {
-    console.log(
-      "--------------------------------------------------------------------------------------------------------------------------"
-    );
     const idToken = await getToken();
     const url = `${import.meta.env.VITE_BASE_URL}/jobs`;
 
