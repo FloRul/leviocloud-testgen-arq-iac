@@ -8,6 +8,6 @@
 - [ ] Add metrics + reports on the total tokens in/ou + alerts
 - [ ] Add metrics to monitor average length of files and the average maount of bedrock calls per files or corpus
 - [ ] Add staging environment + distribution for features development
-- [ ] Optimize pipeline to reduce cdn invalidations (right now it is one invalidation for every code push)
+- [X] Optimize pipeline to reduce cdn invalidations (right now it is one invalidation for every code push)
 - [ ] Friendly names for result files
 - [ ] Add tests
