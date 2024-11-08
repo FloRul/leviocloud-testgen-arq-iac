@@ -43,7 +43,7 @@ export async function uploadFiles(files: File[]): Promise<void> {
         const response = await fetch(`${import.meta.env.VITE_BASE_URL}/files`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/octet-stream",
+            "Content-Type": "text/plain",
             Authorization: `Bearer ${idToken}`,
             filename: file.name,
           },
@@ -173,9 +173,8 @@ export const getLink = async (
 ): Promise<string> => {
   try {
     const idToken = await getToken();
-    const url = `${
-      import.meta.env.VITE_BASE_URL
-    }/jobs/${jobId}/download/${fileId}`;
+    const url = `${import.meta.env.VITE_BASE_URL
+      }/jobs/${jobId}/download/${fileId}`;
 
     const response = await fetch(url, {
       method: "GET",

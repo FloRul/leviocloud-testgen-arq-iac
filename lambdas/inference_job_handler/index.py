@@ -193,10 +193,9 @@ def record_handler(record: SQSRecord):
                 .read()
                 .decode("utf-8")
             )
-            file_content_decoded = base64.b64decode(file_content).decode("utf-8")
 
             process_file(
-                file_content=file_content_decoded,
+                file_content=file_content,
                 prompt=prompt,
                 job_id=job_id,
                 file_id=file_id,

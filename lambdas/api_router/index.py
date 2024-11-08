@@ -1,6 +1,5 @@
 ﻿import os
 import simplejson as json
-import base64
 import uuid
 from typing import Dict, Any, List
 import time
@@ -70,19 +69,7 @@ def upload_file():
     if not user_id:
         raise UnauthorizedError("User ID not found in claims")
 
-    if not app.current_event.body or not app.current_event.is_base64_encoded:
-        raise BadRequestError("Invalid request: Body must be base64 encoded")
-
-    # Decode base64 content
-    try:
-        undecoded = app.current_event.body
-        logger.info(f"undecoded : {undecoded}")
-        file_content = base64.b64decode(app.current_event.body)
-        logger.info(f"decoded first time : {file_content}")
-        decoded_second = base64.b64decode(file_content)
-        logger.info(f"decoded second time : {decoded_second}")
-    except Exception:
-        raise BadRequestError("Invalid base64 encoded content")
+    file_content = app.current_event.body
 
     # Check file size
     if len(file_content) > MAX_FILE_SIZE:
