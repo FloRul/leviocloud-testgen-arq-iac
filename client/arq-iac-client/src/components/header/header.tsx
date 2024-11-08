@@ -1,6 +1,7 @@
 import React from "react";
 import logo from "../../assets/logos/logo.svg";
 import { useLanguage } from "../../context/languages-context";
+import { languages } from "../../utils/languages";
 
 interface HeaderProps {
   signOut?: () => void;
@@ -8,6 +9,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ signOut }) => {
   const { language, switchLanguage } = useLanguage();
+  const t = languages[language];
 
   return (
     <header className="dark">
@@ -60,10 +62,10 @@ const Header: React.FC<HeaderProps> = ({ signOut }) => {
               {/* Bouton de déconnexion */}
               <button
                 onClick={signOut}
-                className="text-white uppercase rounded-md h-8 flex justify-center items-center bg-black hover:bg-gray-800 transition duration-300 px-4"
+                className="text-white uppercase rounded-md h-8 flex justify-center items-center bg-cyan-900 hover:bg-gray-800 transition duration-300 px-4"
                 aria-label="Déconnexion"
               >
-                Déconnexion
+                {t["log-out"]}
               </button>
             </div>
           </div>

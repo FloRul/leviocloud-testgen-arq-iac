@@ -21,7 +21,30 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
 
     const fileArray = [...selectedFiles];
 
-    const allowedTypes = ["text/plain"];
+    const allowedTypes = [
+      "text/plain", // Fichiers texte
+      "application/json", // Fichiers JSON
+      "application/javascript", // Fichiers JavaScript (.js)
+      "text/javascript", // Fichiers JavaScript (.js)
+      "application/x-typescript", // TypeScript (.ts)
+      "application/typescript", // TypeScript (.ts)
+      "application/javascript", // TypeScript JSX (.tsx)
+      "text/x-python", // Python (.py)
+      "text/x-java-source", // Java (.java)
+      "application/x-java", // Fichiers compilés Java (bytecode)
+      "application/x-msdownload", // Fichiers .NET (compilés comme DLL)
+      "application/x-dotnet", // Fichiers .NET en général
+      "text/x-c", // C (.c)
+      "text/x-c++", // C++ (.cpp)
+      "text/x-ruby", // Ruby (.rb)
+      "text/x-go", // Go (.go)
+      "text/x-sh", // Shell script (.sh)
+      "text/x-perl", // Perl (.pl)
+      "application/x-ruby", // Ruby (.rb)
+      "text/x-swift", // Swift (.swift)
+      "text/x-haskell", // Haskell (.hs)
+      "application/x-java-archive", // Fichiers JAR (.jar)
+    ];
     const exceedsMaxSize = fileArray.some(
       (file) => file.size > 5 * 1024 * 1024
     );
@@ -106,12 +129,6 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
                   ? file.name.substring(0, 30) + "..."
                   : file.name}
               </span>
-              <button
-                onClick={() => removeFile(file.name)}
-                className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 ml-2"
-              >
-                X
-              </button>
             </div>
           ))}
         </div>

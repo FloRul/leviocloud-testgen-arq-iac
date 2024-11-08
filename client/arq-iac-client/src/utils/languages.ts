@@ -61,6 +61,7 @@ export const languages = {
     files: "Files: ",
     prompt: "Prompt: ",
     "request-success": "Your request has been successfully submitted",
+    "log-out": "Log out",
   },
   fr: {
     "main-title": "Création d'une tache d'inférence",
@@ -130,5 +131,6 @@ export const languages = {
     files: "Fichiers : ",
     prompt: "Prompt : ",
     "request-success": "Votre requête a bien été envoyée",
+    "log-out": "Déconnexion",
   },
 };

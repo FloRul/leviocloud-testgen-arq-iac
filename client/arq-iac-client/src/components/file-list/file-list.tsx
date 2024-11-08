@@ -129,50 +129,54 @@ const FileList: React.FC<FileListProps> = ({
           </button>
         </div>
       </div>
-
-      <table className="file-table w-full">
-        <thead>
-          <tr>
-            <th className="border border-gray-300 px-4 py-2 text-left bg-gray-200 w-1/12">
-              <input
-                type="checkbox"
-                checked={
-                  filteredFiles.length > 0 &&
-                  selectedFiles.size === filteredFiles.length
-                }
-                onChange={handleSelectAll}
-                disabled={filteredFiles.length === 0}
-              />
-            </th>
-            <th className="border border-gray-300 px-4 py-2 text-left bg-gray-200 w-9/12">
-              {t["file-name"]}
-            </th>
-            <th className="border border-gray-300 px-4 py-2 text-left bg-gray-200 w-2/12">
-              {t["file-last-update"]}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredFiles.length > 0 &&
-            filteredFiles.map((file) => (
-              <tr key={file.file_id} className="file-item">
-                <td className="border border-gray-300 px-4 py-2 w-1/12">
+      <div className="overflow-x-auto flex -mx-4 sm:-mx-6 md:mx-0">
+        <div className="flex-none min-w-full px-4 sm:px-6 md:px-0 overflow-hidden lg:overflow-auto scrollbar:!w-1.5 scrollbar:!h-1.5 scrollbar:bg-transparent scrollbar-track:!bg-slate-100 scrollbar-thumb:!rounded scrollbar-thumb:!bg-slate-300 scrollbar-track:!rounded dark:scrollbar-track:!bg-slate-500/[0.16] dark:scrollbar-thumb:!bg-slate-500/50 max-h-96 lg:supports-scrollbars:pr-2 lg:max-h-96">
+          <table className="file-table w-full">
+            <thead>
+              <tr>
+                <th className="sticky z-10 top-0 border border-gray-300 px-4 py-2 text-left bg-gray-200 w-1/12">
                   <input
                     type="checkbox"
-                    checked={selectedFiles.has(file.file_id)}
-                    onChange={() => handleFileSelection(file.file_id)}
+                    checked={
+                      filteredFiles.length > 0 &&
+                      selectedFiles.size === filteredFiles.length
+                    }
+                    onChange={handleSelectAll}
+                    disabled={filteredFiles.length === 0}
                   />
-                </td>
-                <td className="border border-gray-300 px-4 py-2 w-7/12">
-                  {file.filename}
-                </td>
-                <td className="border border-gray-300 px-4 py-2 w-4/12">
-                  {formatDate(file.last_modified)}
-                </td>
+                </th>
+                <th className="sticky z-10 top-0 border border-gray-300 px-4 py-2 text-left bg-gray-200 w-9/12">
+                  {t["file-name"]}
+                </th>
+                <th className="sticky z-10 top-0 border border-gray-300 px-4 py-2 text-left bg-gray-200 w-2/12">
+                  {t["file-last-update"]}
+                </th>
               </tr>
-            ))}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {filteredFiles.length > 0 &&
+                filteredFiles.map((file) => (
+                  <tr key={file.file_id} className="file-item">
+                    <td className="border border-gray-300 px-4 py-2 w-1/12">
+                      <input
+                        type="checkbox"
+                        checked={selectedFiles.has(file.file_id)}
+                        onChange={() => handleFileSelection(file.file_id)}
+                      />
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2 w-7/12">
+                      {file.filename}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2 w-4/12">
+                      {formatDate(file.last_modified)}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <Modal isOpen={isModalOpen}>
         <FileUploader onClose={closeModal} />
       </Modal>
