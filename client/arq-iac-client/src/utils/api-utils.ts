@@ -25,12 +25,12 @@ export function getApiUrl(): string | undefined {
   return API_URL;
 }
 
-async function readFileAsBase64(file: File): Promise<string> {
+async function readFileAsText(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = reject;
-    reader.readAsDataURL(file);
+    reader.readAsText(file, 'utf-8'); // Explicitly specify UTF-8 encoding
   });
 }
 
@@ -39,15 +39,15 @@ export async function uploadFiles(files: File[]): Promise<void> {
     const idToken = await getToken();
     const uploadPromises = files.map(async (file) => {
       try {
-        const fileContent = await readFileAsBase64(file);
+        const fileContent = await readFileAsText(file);
         const response = await fetch(`${import.meta.env.VITE_BASE_URL}/files`, {
           method: "POST",
           headers: {
-            "Content-Type": "text/plain",
+            "Content-Type": "text/plain; charset=utf-8",
             Authorization: `Bearer ${idToken}`,
             filename: file.name,
           },
-          body: fileContent,
+          body: fileContent, // Send the text content directly
         });
 
         const contentType = response.headers.get("Content-Type");
