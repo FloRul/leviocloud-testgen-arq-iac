@@ -3,6 +3,7 @@ import os
 import time
 import boto3
 import re
+import base64
 from typing import List, Optional, Dict, Any
 from aws_lambda_powertools import Logger, Tracer, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
@@ -186,13 +187,16 @@ def record_handler(record: SQSRecord):
         # retrieve files
         for file_id in file_keys:
             file_content = (
-                s3_client.get_object(Bucket=Config.INPUT_BUCKET, Key=f"{user_id}/{file_id}")["Body"]
+                s3_client.get_object(
+                    Bucket=Config.INPUT_BUCKET, Key=f"{user_id}/{file_id}"
+                )["Body"]
                 .read()
                 .decode("utf-8")
             )
+            file_content_decoded = base64.b64decode(file_content).decode("utf-8")
 
             process_file(
-                file_content=file_content,
+                file_content=file_content_decoded,
                 prompt=prompt,
                 job_id=job_id,
                 file_id=file_id,
