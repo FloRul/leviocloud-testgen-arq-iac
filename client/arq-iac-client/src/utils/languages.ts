@@ -1,8 +1,9 @@
 export const languages = {
   en: {
     "main-title": "Generative AI",
-    "claude-model-label": "Please select claude AI language model",
-    "claude-files-label": "Please select one or more files",
+    "new-job": "New job",
+    "claude-model-label": "Select claude AI language model",
+    "claude-files-label": "Select one or more files",
     "source-code-input": {
       text: "Enter source code here",
       "data-val-required": "The 'Last Name' field is required.",
@@ -14,7 +15,7 @@ export const languages = {
     "fields-required": "All fields marked with * are required ",
     "upload-label": "Upload Source Code File",
     "upload-button-span": "Upload File",
-    "prompt-label": "Please enter your request",
+    "prompt-label": "Enter your request",
     "prompt-input": {
       text: "Enter your prompt here",
       "data-val-phone":
@@ -26,8 +27,7 @@ export const languages = {
     "delete-file-button-span": "Delete the selected files",
     "search-files": "Search files...",
     "add-files": "Add files",
-    "error-message":
-      "Please select at least one file and provide an instruction.",
+    "error-message": "Select at least one file and provide an instruction.",
     close: "Cancel",
     submit: "Submit",
     submitting: "Submitting...",
@@ -60,12 +60,13 @@ export const languages = {
     "allowed-format": "Only files in txt, .cs, .vb, .sql format are allowed",
     files: "Files: ",
     prompt: "Prompt: ",
+    "request-success": "Your request has been successfully submitted",
   },
   fr: {
     "main-title": "IA générative",
-    "claude-model-label":
-      "Veuillez selectionner le modèle de langage claude AI",
-    "claude-files-label": "Veuillez sélectionner un ou plusieurs fichiers",
+    "new-job": "Nouveau processus",
+    "claude-model-label": "Selectionner le modèle de langage claude AI",
+    "claude-files-label": "Sélectionner un ou plusieurs fichiers",
     "source-code-input": {
       text: "Entrez le code source ici...",
       "data-val-required": "Le champ 'Nom' est requis.",
@@ -78,7 +79,7 @@ export const languages = {
       "Tous les champs marqués d'un astérisque * sont obligatoires",
     "upload-label": "Ajouter des fichiers ",
     "upload-button-span": "Téléverser les fichiers",
-    "prompt-label": "Veuillez saisir votre demande",
+    "prompt-label": "Saisir votre demande",
     "prompt-input": {
       text: "Entrez votre prompt ici",
       "data-val-phone":
@@ -92,7 +93,7 @@ export const languages = {
     "search-files": "Recherchez des fichiers",
     "add-files": "Ajouter des fichiers",
     "error-message":
-      "Veuillez sélectionner au moins un fichier et fournir une instruction.",
+      "Sélectionner au moins un fichier et fournir une instruction.",
     close: "Cancel",
     submit: "Soumettre",
     submitting: "Envoi en cours...",
@@ -128,5 +129,6 @@ export const languages = {
       "Seul les fichiers au format txt, .cs, .vb, .sql sont autorisés",
     files: "Fichiers : ",
     prompt: "Prompt : ",
+    "request-success": "Votre requête a bien été envoyée",
   },
 };

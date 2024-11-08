@@ -17,7 +17,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ prompt, setPrompt }) => {
         htmlFor="prompt"
         data-key="prompt-label"
       >
-        {t["prompt-label"]}
+        2 - {t["prompt-label"]}
         <span className="text-red-700">*</span>
       </label>
       <textarea

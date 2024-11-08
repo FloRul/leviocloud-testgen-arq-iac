@@ -2,33 +2,33 @@ import React, { useEffect, useState } from "react";
 import { useLanguage } from "../../context/languages-context";
 import { fetchFiles, submitForm } from "../../utils/api-utils";
 import { languages } from "../../utils/languages";
-import { useFileContext } from "../file-context/file-context";
+import { useFileContext } from "../contexts/file-context";
+import { useJobContext } from "../contexts/job-context";
 import FileList from "../file-list/file-list";
-import ModelSelector from "../model-selector/model-selector";
 import PromptInput from "../prompt-imput/prompt-imput";
 
 const ClaudeForm: React.FC = () => {
   const { language } = useLanguage();
   const t = languages[language];
   const { setFiles } = useFileContext();
+  const { loadJobs } = useJobContext();
 
-  const [selectedModel, setSelectedModel] = useState<string>(
-    "anthropic.claude-3-sonnet-20240229-v1:0"
-  );
+  const selectedModel = "anthropic.claude-3-sonnet-20240229-v1:0";
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [prompt, setPrompt] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>("");
-  console.log(error); //TODO gerer les validations
+  const [submissionSuccess, setSubmissionSuccess] = useState(false); // Nouvel état pour la réussite
 
   useEffect(() => {
     const loadFiles = async () => {
       try {
         const files = await fetchFiles("");
         setFiles(files);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des fichiers", error);
+      } catch (e) {
+        console.error("Erreur lors de la récupération des fichiers", e);
         setError("Erreur lors du chargement des fichiers.");
+        console.error(error);
       }
     };
 
@@ -58,9 +58,15 @@ const ClaudeForm: React.FC = () => {
 
     setIsSubmitting(true);
     setError("");
+    setSubmissionSuccess(false); // Réinitialise le succès avant chaque soumission
 
     try {
       await submitForm(selectedModel, [...selectedFiles], prompt);
+
+      handleAllFileSelection([]);
+      setPrompt("");
+      setSubmissionSuccess(true); // Message de succès après une soumission réussie
+      loadJobs(true);
     } catch (error) {
       setError("Erreur lors de l'envoi du formulaire.");
     } finally {
@@ -72,7 +78,14 @@ const ClaudeForm: React.FC = () => {
 
   return (
     <>
-      <ModelSelector setSelectedModel={setSelectedModel} />
+      <div className="file-list pf-form-field sm:col-span-6 border-b border-secondary-500">
+        <h2
+          className="text-h3 uppercase font-display font-semibold tracking-[0.3em] mb-6 mt-0"
+          data-key="main-title"
+        >
+          {t["main-title"]}
+        </h2>
+      </div>
 
       <FileList
         selectedFiles={selectedFiles}
@@ -105,6 +118,12 @@ const ClaudeForm: React.FC = () => {
           </span>
         </button>
       </div>
+
+      {submissionSuccess && (
+        <div className="success-message sm:col-span-6 text-center mt-4 text-green-700">
+          <span>{t["request-success"]}</span>{" "}
+        </div>
+      )}
     </>
   );
 };

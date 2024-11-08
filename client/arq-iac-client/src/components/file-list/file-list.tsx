@@ -4,7 +4,7 @@ import { deleteFiles } from "../../utils/api-utils";
 import { ServerFile } from "../../utils/interfaces";
 import { languages } from "../../utils/languages";
 import { formatDate } from "../../utils/utils";
-import { useFileContext } from "../file-context/file-context";
+import { useFileContext } from "../contexts/file-context";
 import FileUploader from "../file-uploader/file-uploader";
 import Modal from "../modal/modal";
 
@@ -82,7 +82,7 @@ const FileList: React.FC<FileListProps> = ({
         htmlFor="modelSelect"
         data-key="claude-model-label"
       >
-        {t["claude-files-label"]}
+        1 - {t["claude-files-label"]}
         <span className="text-red-700">*</span>
       </label>
       <div className="flex items-center mb-2">
@@ -97,7 +97,7 @@ const FileList: React.FC<FileListProps> = ({
           <button
             type="button"
             onClick={openModal}
-            className="rounded-md bg-slate-800 p-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none mr-2"
+            className="rounded-md bg-cyan-900 p-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-green-500 focus:shadow-none active:bg-green-500 hover:bg-green-500 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none mr-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -112,7 +112,7 @@ const FileList: React.FC<FileListProps> = ({
           <button
             id="deleteButton"
             type="button"
-            className="rounded-md bg-slate-800 p-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+            className="rounded-md bg-cyan-900 p-2.5 border border-transparent text-center text-sm text-white transition-all shadow-sm hover:shadow-lg focus:bg-green-500 focus:shadow-none active:bg-green-500 hover:bg-green-500 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
             onClick={handleDelete}
           >
             <span className="relative" data-key="delete-files-button-span">

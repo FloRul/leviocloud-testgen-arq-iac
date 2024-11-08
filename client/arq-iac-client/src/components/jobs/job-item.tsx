@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLanguage } from "../../context/languages-context";
 import { getLink } from "../../utils/api-utils"; // Fonction pour obtenir l'URL presignée
 import { languages } from "../../utils/languages";
+import { formatDate } from "../../utils/utils";
 
 interface Job {
   job_id: string;
@@ -75,11 +76,11 @@ const JobItem: React.FC<JobItemProps> = ({ job }) => {
           <div className="text-sm mt-2">
             <div>
               <span className="font-medium">{t["created-at"]}</span>
-              {new Date(job.created_at * 1000).toLocaleString()}
+              {formatDate(job.created_at)}
             </div>
             <div>
               <span className="font-medium">{t["file-last-update"]}</span>
-              {new Date(job.updated_at * 1000).toLocaleString()}
+              {formatDate(job.updated_at)}
             </div>
           </div>
           <div>
@@ -89,9 +90,9 @@ const JobItem: React.FC<JobItemProps> = ({ job }) => {
                 height="48px"
                 viewBox="0 -960 960 960"
                 width="48px"
-                fill="#000000"
+                fill="#164E63"
               >
-                <path d="M450-332h60v-182l74 74 42-42-146-146-146 146 42 42 74-74v182Zm30 252q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z" />
+                <path d="M480-554 283-357l-43-43 240-240 240 240-43 43-197-197Z" />
               </svg>
             ) : (
               <svg
@@ -99,9 +100,9 @@ const JobItem: React.FC<JobItemProps> = ({ job }) => {
                 height="48px"
                 viewBox="0 -960 960 960"
                 width="48px"
-                fill="#000000"
+                fill="#164E63"
               >
-                <path d="m480-332 146-146-42-42-74 74v-182h-60v182l-74-74-42 42 146 146Zm0 252q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 31.5-156t86-127Q252-817 325-848.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 82-31.5 155T763-197.5q-54 54.5-127 86T480-80Zm0-60q142 0 241-99.5T820-480q0-142-99-241t-241-99q-141 0-240.5 99T140-480q0 141 99.5 240.5T480-140Zm0-340Z" />
+                <path d="M480-344 240-584l43-43 197 197 197-197 43 43-240 240Z" />
               </svg>
             )}
           </div>
