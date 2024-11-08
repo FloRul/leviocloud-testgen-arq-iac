@@ -60,4 +60,6 @@ export function App({ signOut }: WithAuthenticatorProps) {
   );
 }
 
-export default withAuthenticator(App);
+export default withAuthenticator(App, {
+  hideSignUp: true,
+});

@@ -70,3 +70,7 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.amplify-button--primary {
+  @apply bg-cyan-900 hover:bg-green-500 text-white;
+}
