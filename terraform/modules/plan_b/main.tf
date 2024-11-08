@@ -58,7 +58,7 @@ module "lambda_function" {
   timeout       = 900
   publish       = true
   source_path   = "${path.module}/src"
-
+  trigger_on_package_timestamp = false
   layers = [
     "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python311-x86_64:2"
   ]
