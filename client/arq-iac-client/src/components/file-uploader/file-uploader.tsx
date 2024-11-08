@@ -84,10 +84,6 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
     }
   };
 
-  const removeFile = (fileName: string) => {
-    setFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileName));
-  };
-
   return (
     <div className="pf-form-field sm:col-span-6">
       <label
