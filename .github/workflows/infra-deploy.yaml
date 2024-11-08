@@ -2,6 +2,9 @@
 
 on:
   push:
+    paths:
+      - 'terraform/**'
+      - 'lambdas/**'
     branches:
       - master
 

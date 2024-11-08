@@ -1,6 +1,6 @@
 export const languages = {
   en: {
-    "main-title": "Generative AI",
+    "main-title": "Create an inference job",
     "new-job": "New job",
     "claude-model-label": "Select claude AI language model",
     "claude-files-label": "Select one or more files",
@@ -63,7 +63,7 @@ export const languages = {
     "request-success": "Your request has been successfully submitted",
   },
   fr: {
-    "main-title": "IA générative",
+    "main-title": "Création d'une tache d'inférence",
     "new-job": "Nouveau processus",
     "claude-model-label": "Selectionner le modèle de langage claude AI",
     "claude-files-label": "Sélectionner un ou plusieurs fichiers",
