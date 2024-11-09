@@ -20,3 +20,4 @@ garder les dichier input+output dans le resultat des jobs.
 supression manuelle des jobs
 lifecycle sur les fichiers d'input
 liste des processus -> pagner ou hauteur fixe + scroll
+ajout details de l'erreur quand le job est en erreur
