@@ -157,6 +157,7 @@ def delete_file(file_id: str):
 
 
 def retrieve_files(user_id: str, file_list: List[str]) -> List[Dict[str, Any]]:
+    logger.debug(f"Retrieving files: {file_list}")
     files = []
     for file_id in file_list:
         try:
