@@ -180,7 +180,9 @@ def record_handler(record: SQSRecord):
     try:
         # extract file ids list
         file_keys = [file["file_id"] for file in payload["input_files"]]
-
+        logger.info(
+            f"Received job {job_id} for user {user_id}, processing files: {file_keys}"
+        )
         # extract prompt
         prompt = payload["prompt"]
 
@@ -193,7 +195,7 @@ def record_handler(record: SQSRecord):
                 .read()
                 .decode("utf-8")
             )
-
+            logger.info(f"Processing file {file_id}")
             process_file(
                 file_content=file_content,
                 prompt=prompt,
