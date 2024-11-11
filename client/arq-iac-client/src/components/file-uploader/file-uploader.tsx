@@ -32,6 +32,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
       "text/x-python", // Python (.py)
       "text/x-java-source", // Java (.java)
       "application/x-java", // Fichiers compilés Java (bytecode)
+      "application/x-python", // Fichiers .py en général
+      "application/x-python-code", // Fichiers .py en général
       "application/x-msdownload", // Fichiers .NET (compilés comme DLL)
       "application/x-dotnet", // Fichiers .NET en général
       "text/x-c", // C (.c)
