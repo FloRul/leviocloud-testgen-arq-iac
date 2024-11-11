@@ -93,7 +93,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
       >
         {t["upload-label"]}
       </label>
-      <div className="text-sm">{t["allowed-format"]}</div>
+      <div className="text-sm">
+        {t["allowed-format"]["first-ligne"]}
+        <br />
+        {t["allowed-format"]["second-ligne"]}
+        <br />
+        {t["allowed-format"]["third-ligne"]}
+      </div>
       <input
         type="file"
         id="sourceCodeFile"

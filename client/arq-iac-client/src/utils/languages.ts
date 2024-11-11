@@ -57,7 +57,8 @@ export const languages = {
     of: "of",
     "refresh-search": "Refresh search",
     "selected-files": "Selected files :",
-    "allowed-format": "Only files in txt, .cs, .vb, .sql format are allowed",
+    "allowed-format":
+      "Only files in txt, .cs, .vb, .sql, .js, .ts, .tsx, .py, .java, .net, .c, .cpp, .rb, .go, .sh, .hs, .jar format are allowed",
     files: "Files: ",
     prompt: "Prompt: ",
     "request-success": "Your request has been successfully submitted",
@@ -126,8 +127,11 @@ export const languages = {
     of: "sur",
     "refresh-search": "Reactualiser la recherche",
     "selected-files": "Fichiers sélectionnés :",
-    "allowed-format":
-      "Seul les fichiers au format txt, .cs, .vb, .sql sont autorisés",
+    "allowed-format": {
+      "first-ligne": "Seul les fichiers au format txt, .cs, .vb, .sql, .cs, ",
+      "second-ligne": ".vb,  .sql, .js, .ts, .tsx, .py, .java, .net, .c, ",
+      "third-ligne": ".cpp, .rb, .go, .sh, .hs, .jar sont autorisés",
+    },
     files: "Fichiers : ",
     prompt: "Prompt : ",
     "request-success": "Votre requête a bien été envoyée",
