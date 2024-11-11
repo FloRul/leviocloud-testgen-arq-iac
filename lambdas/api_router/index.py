@@ -1,6 +1,6 @@
-﻿import os
+﻿import base64
+import os
 import simplejson as json
-import base64
 import uuid
 from typing import Dict, Any, List
 import time
@@ -70,14 +70,11 @@ def upload_file():
     if not user_id:
         raise UnauthorizedError("User ID not found in claims")
 
-    if not app.current_event.body or not app.current_event.is_base64_encoded:
-        raise BadRequestError("Invalid request: Body must be base64 encoded")
-
-    # Decode base64 content
-    try:
-        file_content = base64.b64decode(app.current_event.body)
-    except Exception:
-        raise BadRequestError("Invalid base64 encoded content")
+    if app.current_event.is_base64_encoded:
+        # Decode base64 and then decode bytes to string
+        file_content = base64.b64decode(app.current_event.body).decode("utf-8")
+    else:
+        file_content = app.current_event.body
 
     # Check file size
     if len(file_content) > MAX_FILE_SIZE:
@@ -89,7 +86,7 @@ def upload_file():
     filename = app.current_event.headers.get("filename", "unnamed-file")
 
     # Generate file_id as the hash of the filename
-    file_id = hashlib.sha256(filename.encode()).hexdigest()
+    file_id = hashlib.sha256(filename.encode()).hexdigest()[0:8]
     key = f"{user_id}/{file_id}"
 
     try:
@@ -160,6 +157,7 @@ def delete_file(file_id: str):
 
 
 def retrieve_files(user_id: str, file_list: List[str]) -> List[Dict[str, Any]]:
+    logger.debug(f"Retrieving files: {file_list}")
     files = []
     for file_id in file_list:
         try:
@@ -321,7 +319,8 @@ def get_download_url(job_id: str, file_id: str):
             raise NotFoundError(f"File {file_id} not found in job {job_id}")
 
         # Generate a presigned URL for the file
-        s3_key = f"{user_id}/{job_id}/{file_id}.txt"
+        # TODO: make sure to sync with the inference output key
+        s3_key = f"{user_id}/{job_id}/{file_id}_result.txt"
         presigned_url = s3_client.generate_presigned_url(
             ClientMethod="get_object",
             Params={"Bucket": OUTPUT_BUCKET_NAME, "Key": s3_key},

@@ -16,6 +16,12 @@
 
 
 ## Notes
-garder les dichier input+output dans le resultat des jobs.
+garder les fichier input+output dans le resultat des jobs.
 supression manuelle des jobs
 lifecycle sur les fichiers d'input
+liste des processus -> pagner ou hauteur fixe + scroll
+ajout details de l'erreur quand le job est en erreur
+donner plus de controle au client sur l'inference (temperature, templates...)
+meilleur affichage des resultats et inputs
+backend content type validation
+prompt favoris

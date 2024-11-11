@@ -32,6 +32,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
       "text/x-python", // Python (.py)
       "text/x-java-source", // Java (.java)
       "application/x-java", // Fichiers compilés Java (bytecode)
+      "application/x-python", // Fichiers .py en général
+      "application/x-python-code", // Fichiers .py en général
       "application/x-msdownload", // Fichiers .NET (compilés comme DLL)
       "application/x-dotnet", // Fichiers .NET en général
       "text/x-c", // C (.c)
@@ -43,7 +45,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
       "application/x-ruby", // Ruby (.rb)
       "text/x-swift", // Swift (.swift)
       "text/x-haskell", // Haskell (.hs)
-      "application/x-java-archive", // Fichiers JAR (.jar)
+      "application/x-java-archive", // Fichiers JAR (.jar),
+      "text/x-script.python", // Python en tant que script
     ];
     const exceedsMaxSize = fileArray.some(
       (file) => file.size > 5 * 1024 * 1024

@@ -16,6 +16,7 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 
 processor = BatchProcessor(event_type=EventType.SQS)
 from botocore.config import Config
+from botocore.exceptions import ClientError
 
 # Initialize Powertools
 logger = Logger()
@@ -33,9 +34,9 @@ job_table = dynamodb.Table(os.environ["INFERENCE_JOBS_TABLE"])
 class Config:
     DEFAULT_MODEL = "anthropic.claude-3-sonnet-20240229-v1:0"
     DEFAULT_MAX_TOKENS = 4096
-    DEFAULT_TEMPERATURE = 0.1
+    DEFAULT_TEMPERATURE = 0.6
     INSTRUCTIONS = (
-        "Génère ta réponse entre les balises suivantes : <reponse></reponse>, "
+        "\nGénère ta réponse entre les balises suivantes : <reponse></reponse>, "
         "n'utilise aucune balise supplémentaire."
     )
     MAX_BEDROCK_CALL_AMOUNT = 7
@@ -107,6 +108,11 @@ def call_bedrock(
 
         return response_body["content"][0]["text"]
 
+    except ClientError as e:
+        logger.exception(f"Error calling Bedrock: {str(e)}")
+        metrics.add_metric(name="BedrockError", unit=MetricUnit.Count, value=1)
+        
+    
     except Exception as e:
         logger.exception(f"Error calling Bedrock: {str(e)}")
         metrics.add_metric(name="BedrockAPIError", unit=MetricUnit.Count, value=1)
@@ -154,7 +160,7 @@ def process_file(
         metrics.add_metric(name="FailedResponses", unit=MetricUnit.Count, value=1)
 
     # Store response in S3
-    result_key = f"{user_id}/{job_id}/{file_id}.txt"
+    result_key = f"{user_id}/{job_id}/{file_id}_result.txt"
     s3_client.put_object(
         Bucket=Config.OUTPUT_BUCKET,
         Key=result_key,
@@ -179,18 +185,22 @@ def record_handler(record: SQSRecord):
     try:
         # extract file ids list
         file_keys = [file["file_id"] for file in payload["input_files"]]
-
+        logger.info(
+            f"Received job {job_id} for user {user_id}, processing files: {file_keys}"
+        )
         # extract prompt
         prompt = payload["prompt"]
 
         # retrieve files
         for file_id in file_keys:
             file_content = (
-                s3_client.get_object(Bucket=Config.INPUT_BUCKET, Key=f"{user_id}/{file_id}")["Body"]
+                s3_client.get_object(
+                    Bucket=Config.INPUT_BUCKET, Key=f"{user_id}/{file_id}"
+                )["Body"]
                 .read()
                 .decode("utf-8")
             )
-
+            logger.info(f"Processing file {file_id}")
             process_file(
                 file_content=file_content,
                 prompt=prompt,
