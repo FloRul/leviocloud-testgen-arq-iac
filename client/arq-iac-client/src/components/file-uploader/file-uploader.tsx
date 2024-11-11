@@ -45,7 +45,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onClose }) => {
       "application/x-ruby", // Ruby (.rb)
       "text/x-swift", // Swift (.swift)
       "text/x-haskell", // Haskell (.hs)
-      "application/x-java-archive", // Fichiers JAR (.jar)
+      "application/x-java-archive", // Fichiers JAR (.jar),
+      "text/x-script.python", // Python en tant que script
     ];
     const exceedsMaxSize = fileArray.some(
       (file) => file.size > 5 * 1024 * 1024
