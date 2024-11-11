@@ -3,7 +3,8 @@
 on:
   push:
     paths:
-      - 'terraform/**'
+      - 'terraform/modules/**'
+      - 'terraform/dev/**'
       - 'lambdas/**'
     branches:
       - master
@@ -13,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_REGION: ca-central-1
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - name: Checkout repository
@@ -21,9 +24,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ca-central-1
+          aws-access-key-id: $AWS_ACCESS_KEY_ID
+          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+          aws-region: $AWS_REGION
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -31,13 +34,13 @@ jobs:
           terraform_version: 1.9.8
 
       - name: Terraform Init
-        working-directory: ./terraform
+        working-directory: ./terraform/dev
         run: terraform init
 
       - name: Terraform Apply
         id: terraform
-        working-directory: ./terraform
-        run: terraform apply -var-file="main.tfvars" -auto-approve
+        working-directory: ./terraform/dev
+        run: terraform apply -var-file="dev.tfvars" -auto-approve
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+          AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
