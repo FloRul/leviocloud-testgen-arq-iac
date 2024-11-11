@@ -3,7 +3,6 @@ import os
 import time
 import boto3
 import re
-import base64
 from typing import List, Optional, Dict, Any
 from aws_lambda_powertools import Logger, Tracer, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
@@ -17,6 +16,7 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 
 processor = BatchProcessor(event_type=EventType.SQS)
 from botocore.config import Config
+from botocore.exceptions import ClientError
 
 # Initialize Powertools
 logger = Logger()
@@ -108,6 +108,11 @@ def call_bedrock(
 
         return response_body["content"][0]["text"]
 
+    except ClientError as e:
+        logger.exception(f"Error calling Bedrock: {str(e)}")
+        metrics.add_metric(name="BedrockError", unit=MetricUnit.Count, value=1)
+        
+    
     except Exception as e:
         logger.exception(f"Error calling Bedrock: {str(e)}")
         metrics.add_metric(name="BedrockAPIError", unit=MetricUnit.Count, value=1)

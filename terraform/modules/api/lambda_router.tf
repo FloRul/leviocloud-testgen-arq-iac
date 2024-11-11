@@ -10,7 +10,7 @@ module "lambda_router" {
   runtime       = "python3.11"
   timeout       = 90
   publish       = true
-  source_path   = "../lambdas/api_router"
+  source_path   = "${path.root}/../../lambdas/api_router"
 
   layers                       = ["arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV2:79"]
   store_on_s3                  = true
