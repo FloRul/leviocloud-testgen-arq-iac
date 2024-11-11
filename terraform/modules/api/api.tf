@@ -38,6 +38,7 @@ resource "aws_api_gateway_rest_api" "files_api" {
 resource "aws_lambda_permission" "apigw" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
+  
   function_name = module.lambda_router.lambda_function_name
   principal     = "apigateway.amazonaws.com"
 
@@ -130,7 +131,6 @@ resource "aws_api_gateway_method_settings" "all" {
   }
 }
 
-# Update the stage resource to include log settings
 resource "aws_api_gateway_stage" "this" {
   depends_on    = [aws_api_gateway_account.this]
   deployment_id = aws_api_gateway_deployment.this.id
@@ -138,6 +138,7 @@ resource "aws_api_gateway_stage" "this" {
   stage_name    = var.environment
   variables = {
     "cors" = "true"
+    
   }
   xray_tracing_enabled = true
 
