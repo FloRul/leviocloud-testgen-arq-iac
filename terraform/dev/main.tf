@@ -59,8 +59,7 @@ module "storage" {
 }
 
 module "plan_b" {
-  source = "../modules/plan_b"
-
+  source       = "../modules/plan_b"
   environment  = var.environment
   project_name = local.project_name
 }
