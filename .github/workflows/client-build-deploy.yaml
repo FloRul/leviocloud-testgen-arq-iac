@@ -30,7 +30,7 @@ jobs:
           terraform_version: 1.9.8
 
       - name: Terraform Init
-        working-directory: ./terraform
+        working-directory: ./terraform/dev
         run: terraform init
 
       - name: Setup Node.js
@@ -43,7 +43,7 @@ jobs:
         run: npm install
 
       - name: Extract S3 bucket name and CloudFront distribution
-        working-directory: ./terraform
+        working-directory: ./terraform/dev
         run: |
           echo "S3_BUCKET_NAME=$(terraform output -raw website_bucket_name)" >> $GITHUB_ENV
           echo "CLOUDFRONT_DISTRIBUTION_ID=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
