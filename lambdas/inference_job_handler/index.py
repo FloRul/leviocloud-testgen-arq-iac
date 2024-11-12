@@ -37,7 +37,7 @@ class Config:
     DEFAULT_MODEL = "anthropic.claude-3-sonnet-20240229-v1:0"
     DEFAULT_MAX_TOKENS = 4096
     MAX_TOTAL_TOKENS = 27000
-    DEFAULT_TEMPERATURE = 0.6
+    DEFAULT_TEMPERATURE = 0.4
     INSTRUCTIONS = (
         "\nGénère ta réponse entre les balises suivantes : <reponse></reponse>, "
         "n'utilise aucune balise supplémentaire.\n"
@@ -119,6 +119,7 @@ def process_file(
     should_continue = True
     total_tokens = 0
     call_count = 0
+    cumulative_tokens = 0
 
     while should_continue:
         with tracer.provider.in_subsegment("bedrock_call") as subsegment:
@@ -132,8 +133,8 @@ def process_file(
                 max_tokens=Config.DEFAULT_MAX_TOKENS,
                 temperature=Config.DEFAULT_TEMPERATURE,
             )
+            cumulative_tokens += total_tokens
             call_count += 1
-            logger.info(f"Bedrock response: {bedrock_response['content'][0]['text']}")
             should_continue = (
                 (total_tokens <= Config.MAX_TOTAL_TOKENS)
                 and (call_count <= Config.MAX_BEDROCK_CALL_AMOUNT)
@@ -141,13 +142,15 @@ def process_file(
                     not re.search(r"</reponse>", bedrock_response["content"][0]["text"])
                 )
             )
+            messages.append(bedrock_response)
 
             if should_continue:
-                messages.append(bedrock_response)
                 messages.append({"role": "user", "content": [{"text": "continue"}]})
 
     extracted_response = extract_ai_response(messages)
-    logger.info(f"Bedrock API call attempt {call_count}")
+    logger.info(
+        f"Bedrock API call attempt {call_count}\nCumulative tokens: {cumulative_tokens}"
+    )
 
     # Store response in S3
     result_key = f"{user_id}/{job_id}/{file_id}_result.txt"
