@@ -85,7 +85,7 @@ const JobList: React.FC = () => {
         </h2>
       </div>
 
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4 mt-4">
         <input
           type="text"
           placeholder={t["search-jobs-placeholder"]}
@@ -93,6 +93,24 @@ const JobList: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="search-input w-6/12 mr-2 rounded-lg"
         />
+        <div className="flex justify-center items-center ">
+          <button
+            type="button"
+            className="text-white bg-cyan-900 hover:bg-green-500 focus:ring-4 focus:outline-none focus:ring-blue-600 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center me-2 dark:bg-cyan-900  dark:hover:bg-green-500 dark:focus:ring-blue-800"
+            onClick={handleSearch}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20px"
+              viewBox="0 -960 960 960"
+              width="20px"
+              fill="#e8eaed"
+            >
+              <path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z" />
+            </svg>
+            <span className="sr-only">{t["refresh-search"]}</span>
+          </button>
+        </div>
         <div className="flex space-x-2 ml-auto">
           {totalPages > 1 && (
             <div className="flex justify-between items-center mb-4 mt-4">

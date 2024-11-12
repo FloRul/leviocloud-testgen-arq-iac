@@ -57,8 +57,11 @@ export const languages = {
     of: "of",
     "refresh-search": "Refresh search",
     "selected-files": "Selected files :",
-    "allowed-format":
-      "Only files in txt, .cs, .vb, .sql, .js, .ts, .tsx, .py, .java, .net, .c, .cpp, .rb, .go, .sh, .hs, .jar format are allowed",
+    "allowed-format": {
+      "first-ligne": "Only files in txt, .cs, .vb, .sql, .cs, ",
+      "second-ligne": ".vb,  .sql, .js, .ts, .tsx, .py, .java, .net, .c, ",
+      "third-ligne": ".cpp, .rb, .go, .sh, .hs, .jar format are allowed",
+    },
     files: "Files: ",
     prompt: "Prompt: ",
     "request-success": "Your request has been successfully submitted",
