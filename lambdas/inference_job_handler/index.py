@@ -38,7 +38,7 @@ class Config:
     DEFAULT_TEMPERATURE = 0.6
     INSTRUCTIONS = (
         "\nGénère ta réponse entre les balises suivantes : <reponse></reponse>, "
-        "n'utilise aucune balise supplémentaire."
+        "n'utilise aucune balise supplémentaire.\n"
     )
     MAX_BEDROCK_CALL_AMOUNT = 7
     INPUT_BUCKET = os.environ["INPUT_BUCKET"]
@@ -52,7 +52,7 @@ def extract_formatted_response(text: str) -> Optional[str]:
         logger.warning("Empty text provided for response extraction")
         return None
 
-    matches = re.finditer(r"<response>\s*((?:(?!<response>|</response>).)*?)\s*</response>", text, re.IGNORECASE | re.DOTALL)
+    matches = re.finditer(r"<reponse>\s*((?:(?!<reponse>|</reponse>).)*?)\s*</reponse>", text, re.IGNORECASE | re.DOTALL)
     responses = [match.group(1).strip() for match in matches]
 
     if not responses:
@@ -121,11 +121,11 @@ def call_bedrock(
 
 @tracer.capture_method
 def process_file(
-    file_content: str, prompt: str, job_id: str, file_id: str, user_id: str
+    file_content: str, user_prompt: str, job_id: str, file_id: str, user_id: str
 ) -> Dict[str, Any]:
     """Process a single file content."""
 
-    system_prompt = prompt + Config.INSTRUCTIONS
+    system_prompt = user_prompt + Config.INSTRUCTIONS
 
     output = file_content
     call_count = 0
@@ -203,7 +203,7 @@ def record_handler(record: SQSRecord):
             logger.info(f"Processing file {file_id}")
             process_file(
                 file_content=file_content,
-                prompt=prompt,
+                user_prompt=prompt,
                 job_id=job_id,
                 file_id=file_id,
                 user_id=user_id,
