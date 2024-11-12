@@ -40,82 +40,68 @@ class Config:
         "\nGénère ta réponse entre les balises suivantes : <reponse></reponse>, "
         "n'utilise aucune balise supplémentaire.\n"
     )
-    MAX_BEDROCK_CALL_AMOUNT = 7
+    MAX_BEDROCK_CALL_AMOUNT = 6
     INPUT_BUCKET = os.environ["INPUT_BUCKET"]
     OUTPUT_BUCKET = os.environ["OUTPUT_BUCKET"]
 
 
 @tracer.capture_method
-def extract_formatted_response(text: str) -> Optional[str]:
-    """Extract content between <reponse> tags."""
-    if not text:
-        logger.warning("Empty text provided for response extraction")
+def extract_ai_response(messages: List[Dict[str, Any]]) -> Optional[str]:
+    """Extract AI response from the response messages."""
+    concat_output = ""
+    for message in messages:
+        if message["role"] != "assistant":
+            continue
+
+        content = message.get("content")
+        if not isinstance(content, list) or len(content) == 0:
+            logger.warning(
+                f"Invalid message format: {message} - skipping response extraction"
+            )
+            continue
+
+        text = content[0].get("text")
+        if not isinstance(text, str):
+            logger.warning(
+                f"Invalid message format: {message} - skipping response extraction"
+            )
+            continue
+
+        concat_output += text
+
+    if not concat_output:
+        logger.warning("No response found in messages")
         return None
 
-    matches = re.finditer(r"<reponse>\s*((?:(?!<reponse>|</reponse>).)*?)\s*</reponse>", text, re.IGNORECASE | re.DOTALL)
-    responses = [match.group(1).strip() for match in matches]
-
-    if not responses:
-        logger.warning("No response tags found in text")
-        return None
-
-    if len(responses) > 1:
-        logger.warning(f"Found {len(responses)} response tags - concatenating content")
-        responses = [r for r in responses if r]
-        return " ".join(responses)
-
-    content = responses[0]
-
-    if "<reponse>" in content or "</reponse>" in content:
-        logger.warning("Possible nested or malformed tags detected in response")
-
-    if not content:
-        logger.warning("Empty response content detected")
-        return None
-
-    return content
+    return concat_output
 
 
 @tracer.capture_method
 def call_bedrock(
     system_prompt: str,
-    user_input: str,
+    messages: List[Dict[str, Any]],
     model_id: str = Config.DEFAULT_MODEL,
     max_tokens: int = Config.DEFAULT_MAX_TOKENS,
     temperature: float = Config.DEFAULT_TEMPERATURE,
 ) -> str:
     """Call Bedrock API with the given parameters."""
     try:
-        request_body = {
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-            "system": system_prompt,
-            "messages": [
-                {"role": "user", "content": [{"type": "text", "text": user_input}]}
-            ],
-        }
-
         metrics.add_metric(name="BedrockAPICall", unit=MetricUnit.Count, value=1)
 
-        response = bedrock_client.invoke_model(
-            modelId=model_id, body=json.dumps(request_body)
+        response = bedrock_client.converse(
+            modelId=model_id,
+            messages=messages,
+            system=system_prompt,
+            inferenceConfig={"maxTokens": max_tokens, "temperature": temperature},
         )
 
-        response_body = json.loads(response["body"].read())
-
-        if not response_body.get("content", [{}])[0].get("text"):
-            raise ValueError("Invalid response format from Bedrock")
-
-        return response_body["content"][0]["text"]
+        output_message = response["output"]["message"]
+        total_tokens = response["usage"]["totalTokens"]
+        return output_message, total_tokens
 
     except ClientError as e:
         logger.exception(f"Error calling Bedrock: {str(e)}")
         metrics.add_metric(name="BedrockError", unit=MetricUnit.Count, value=1)
-
-    except Exception as e:
-        logger.exception(f"Error calling Bedrock: {str(e)}")
-        metrics.add_metric(name="BedrockAPIError", unit=MetricUnit.Count, value=1)
         raise
 
 
@@ -126,45 +112,50 @@ def process_file(
     """Process a single file content."""
 
     system_prompt = user_prompt + Config.INSTRUCTIONS
-
-    output = file_content
-    call_count = 0
-    valid_response = False
+    messages = [
+        {"role": "user", "content": [{"type": "text", "text": file_content}]},
+    ]
+    should_continue = True
+    total_token = 0
 
     # Loop for Bedrock API calls
-    while call_count < Config.MAX_BEDROCK_CALL_AMOUNT and not valid_response:
+    while should_continue:
         with tracer.provider.in_subsegment("bedrock_call") as subsegment:
             logger.info(f"Bedrock API call attempt {call_count + 1}")
             subsegment.put_annotation("attempt", call_count + 1)
 
-            bedrock_response = call_bedrock(
-                system_prompt,
-                output,
-                Config.DEFAULT_MODEL,
+            bedrock_response, total_token = call_bedrock(
+                system_prompt=system_prompt,
+                messages=messages,
+                model_id=Config.DEFAULT_MODEL,
+                max_tokens=Config.DEFAULT_MAX_TOKENS,
+                temperature=Config.DEFAULT_TEMPERATURE,
             )
-            output += bedrock_response
             call_count += 1
 
-            extracted_response = extract_formatted_response(output)
-            if extracted_response:
-                valid_response = True
-                output = extracted_response
+            total_token = bedrock_response
 
-            logger.info(f"Bedrock API call attempt {call_count}")
+            should_continue = (
+                ("</reponse>" not in bedrock_response)
+                and (call_count < Config.MAX_BEDROCK_CALL_AMOUNT)
+                and (total_token < Config.DEFAULT_MAX_TOKENS)
+            )
 
-    if not valid_response:
-        logger.warning(
-            f"Failed to get valid response for file after "
-            f"{Config.MAX_BEDROCK_CALL_AMOUNT} attempts"
-        )
-        metrics.add_metric(name="FailedResponses", unit=MetricUnit.Count, value=1)
+            if should_continue:
+                messages.append(bedrock_response)
+                messages.append(
+                    {"role": "user", "content": [{"type": "text", "text": "continue"}]}
+                )
+
+    extracted_response = extract_ai_response(messages)
+    logger.info(f"Bedrock API call attempt {call_count}")
 
     # Store response in S3
     result_key = f"{user_id}/{job_id}/{file_id}_result.txt"
     s3_client.put_object(
         Bucket=Config.OUTPUT_BUCKET,
         Key=result_key,
-        Body=(output).encode("utf-8"),
+        Body=(extracted_response).encode("utf-8"),
     )
 
 
