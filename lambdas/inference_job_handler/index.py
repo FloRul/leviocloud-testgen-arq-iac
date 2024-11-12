@@ -91,7 +91,7 @@ def call_bedrock(
         response = bedrock_client.converse(
             modelId=model_id,
             messages=messages,
-            system=system_prompt,
+            system=[{"text": system_prompt}],
             inferenceConfig={"maxTokens": max_tokens, "temperature": temperature},
         )
 
