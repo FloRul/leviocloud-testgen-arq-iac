@@ -113,7 +113,7 @@ def process_file(
 
     system_prompt = user_prompt + Config.INSTRUCTIONS
     messages = [
-        {"role": "user", "content": [{"type": "text", "text": file_content}]},
+        {"role": "user", "content": [{"text": file_content}]},
     ]
     should_continue = True
     total_token = 0
@@ -145,7 +145,7 @@ def process_file(
             if should_continue:
                 messages.append(bedrock_response)
                 messages.append(
-                    {"role": "user", "content": [{"type": "text", "text": "continue"}]}
+                    {"role": "user", "content": [{"text": "continue"}]}
                 )
 
     extracted_response = extract_ai_response(messages)
