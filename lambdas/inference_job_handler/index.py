@@ -1,9 +1,9 @@
 ﻿import json
 import os
+import re
 import time
 import traceback
 import boto3
-import re
 from typing import List, Optional, Dict, Any
 from aws_lambda_powertools import Logger, Tracer, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
@@ -14,10 +14,10 @@ from aws_lambda_powertools.utilities.batch import (
 )
 from aws_lambda_powertools.utilities.data_classes.sqs_event import SQSRecord
 from aws_lambda_powertools.utilities.typing import LambdaContext
-
-processor = BatchProcessor(event_type=EventType.SQS)
 from botocore.config import Config
 from botocore.exceptions import ClientError
+
+processor = BatchProcessor(event_type=EventType.SQS)
 
 # Initialize Powertools
 logger = Logger()
@@ -112,22 +112,20 @@ def process_file(
     file_content: str, user_prompt: str, job_id: str, file_id: str, user_id: str
 ) -> Dict[str, Any]:
     """Process a single file content."""
-
     system_prompt = user_prompt + Config.INSTRUCTIONS
     messages = [
         {"role": "user", "content": [{"text": file_content}]},
     ]
     should_continue = True
-    total_token = 0
+    total_tokens = 0
     call_count = 0
 
-    # Loop for Bedrock API calls
     while should_continue:
         with tracer.provider.in_subsegment("bedrock_call") as subsegment:
             logger.info(f"Bedrock API call attempt {call_count + 1}")
             subsegment.put_annotation("attempt", call_count + 1)
 
-            bedrock_response, total_token = call_bedrock(
+            bedrock_response, total_tokens = call_bedrock(
                 system_prompt=system_prompt,
                 messages=messages,
                 model_id=Config.DEFAULT_MODEL,
@@ -135,11 +133,13 @@ def process_file(
                 temperature=Config.DEFAULT_TEMPERATURE,
             )
             call_count += 1
-
+            logger.info(f"Bedrock response: {bedrock_response['content'][0]['text']}")
             should_continue = (
-                ("</reponse>" not in bedrock_response["content"][0]["text"])
-                and (call_count < Config.MAX_BEDROCK_CALL_AMOUNT)
-                and (total_token < Config.MAX_TOTAL_TOKENS)
+                (total_tokens <= Config.MAX_TOTAL_TOKENS)
+                and (call_count <= Config.MAX_BEDROCK_CALL_AMOUNT)
+                and (
+                    not re.search(r"</reponse>", bedrock_response["content"][0]["text"])
+                )
             )
 
             if should_continue:
