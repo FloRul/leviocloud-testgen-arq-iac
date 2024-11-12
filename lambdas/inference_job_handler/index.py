@@ -117,6 +117,7 @@ def process_file(
     ]
     should_continue = True
     total_token = 0
+    call_count = 0
 
     # Loop for Bedrock API calls
     while should_continue:
