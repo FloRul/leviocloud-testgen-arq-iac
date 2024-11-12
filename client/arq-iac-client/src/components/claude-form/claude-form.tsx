@@ -64,7 +64,7 @@ const ClaudeForm: React.FC = () => {
       await submitForm(selectedModel, [...selectedFiles], prompt);
 
       handleAllFileSelection([]);
-      setPrompt("");
+      // setPrompt("");
       setSubmissionSuccess(true); // Message de succès après une soumission réussie
       loadJobs(true);
     } catch (error) {
