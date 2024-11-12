@@ -52,7 +52,7 @@ def extract_formatted_response(text: str) -> Optional[str]:
         logger.warning("Empty text provided for response extraction")
         return None
 
-    matches = re.finditer(r"<reponse>([\s\S]*?)</reponse>", text, re.IGNORECASE)
+    matches = re.finditer(r"<response>\s*((?:(?!<response>|</response>).)*?)\s*</response>", text, re.IGNORECASE | re.DOTALL)
     responses = [match.group(1).strip() for match in matches]
 
     if not responses:
