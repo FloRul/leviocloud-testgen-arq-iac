@@ -1,6 +1,7 @@
 ﻿import json
 import os
 import time
+import traceback
 import boto3
 import re
 from typing import List, Optional, Dict, Any
@@ -35,6 +36,7 @@ job_table = dynamodb.Table(os.environ["INFERENCE_JOBS_TABLE"])
 class Config:
     DEFAULT_MODEL = "anthropic.claude-3-sonnet-20240229-v1:0"
     DEFAULT_MAX_TOKENS = 4096
+    MAX_TOTAL_TOKENS = 27000
     DEFAULT_TEMPERATURE = 0.6
     INSTRUCTIONS = (
         "\nGénère ta réponse entre les balises suivantes : <reponse></reponse>, "
@@ -134,19 +136,15 @@ def process_file(
             )
             call_count += 1
 
-            total_token = bedrock_response
-
             should_continue = (
-                ("</reponse>" not in bedrock_response)
+                ("</reponse>" not in bedrock_response["content"][0]["text"])
                 and (call_count < Config.MAX_BEDROCK_CALL_AMOUNT)
-                and (total_token < Config.DEFAULT_MAX_TOKENS)
+                and (total_token < Config.MAX_TOTAL_TOKENS)
             )
 
             if should_continue:
                 messages.append(bedrock_response)
-                messages.append(
-                    {"role": "user", "content": [{"text": "continue"}]}
-                )
+                messages.append({"role": "user", "content": [{"text": "continue"}]})
 
     extracted_response = extract_ai_response(messages)
     logger.info(f"Bedrock API call attempt {call_count}")
@@ -210,7 +208,9 @@ def record_handler(record: SQSRecord):
             },
         )
     except Exception as e:
-        logger.error(f"Error processing job {job_id}: {str(e)}")
+        logger.error(
+            f"Error processing job {job_id}: {str(e)}, stack trace: {traceback.format_exc()}"
+        )
         job_table.update_item(
             Key={"user_id": user_id, "job_id": job_id},
             UpdateExpression="SET job_status=:s, job_error=:e, updated_at=:u",
