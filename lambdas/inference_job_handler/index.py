@@ -24,8 +24,9 @@ tracer = Tracer()
 metrics = Metrics()
 
 # Get clients using utility function
+config = Config(read_timeout=1000)
 s3_client = boto3.client("s3")
-bedrock_client = boto3.client("bedrock-runtime")
+bedrock_client = boto3.client("bedrock-runtime", config=config)
 dynamodb = boto3.resource("dynamodb")
 job_table = dynamodb.Table(os.environ["INFERENCE_JOBS_TABLE"])
 
@@ -51,7 +52,7 @@ def extract_formatted_response(text: str) -> Optional[str]:
         logger.warning("Empty text provided for response extraction")
         return None
 
-    matches = re.finditer(r"<reponse>([\s\S]*?)</reponse>", text, re.IGNORECASE)
+    matches = re.finditer(r"<response>\s*((?:(?!<response>|</response>).)*?)\s*</response>", text, re.IGNORECASE | re.DOTALL)
     responses = [match.group(1).strip() for match in matches]
 
     if not responses:
@@ -111,8 +112,7 @@ def call_bedrock(
     except ClientError as e:
         logger.exception(f"Error calling Bedrock: {str(e)}")
         metrics.add_metric(name="BedrockError", unit=MetricUnit.Count, value=1)
-        
-    
+
     except Exception as e:
         logger.exception(f"Error calling Bedrock: {str(e)}")
         metrics.add_metric(name="BedrockAPIError", unit=MetricUnit.Count, value=1)
