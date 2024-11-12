@@ -8,3 +8,6 @@
 ### Changes
 - Changed the continue generating algorithm
 - Changed labels for the file input types
+
+### Bugfixes
+- Fixed an error about bedrock client read timeout

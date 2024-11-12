@@ -12,21 +12,17 @@
 - [ ] Friendly names for result files
 - [ ] Add tests
 - [ ] API - constraint on file amount, file type etc...
-
-
-## Notes
-- Garder les fichier input+output dans le resultat des jobs.
-- Supression manuelle des jobs
-- Lifecycle sur les fichiers d'input
-- Liste des processus -> pagner ou hauteur fixe + scroll
-- Ajout details de l'erreur quand le job est en erreur
-- Donner plus de controle au client sur l'inference (temperature, templates...)
-- Meilleur affichage des resultats et inputs
-- Backend content type validation
-- Prompt favoris
-- Pouvoir grouper les fichiers d'une tache d'inference au lieu d'appliquer le prompt par fichier seulement
-- Input texte direct
-- Gestion des prompts d'equipe
-- Templater les fichiers dans le prompt
-- Changer les labels des outputs
-- Bouton refresh en haut
+- [ ] Garder les fichier input+output dans le resultat des jobs.
+- [ ] Supression manuelle des jobs
+- [ ] Lifecycle sur les fichiers d'input
+- [ ] Liste des processus -> pagner ou hauteur fixe + scroll
+- [ ] Ajout details de l'erreur quand le job est en erreur
+- [ ] Donner plus de controle au client sur l'inference (temperature, templates...)
+- [ ] Meilleur affichage des resultats et inputs
+- [ ] Backend content type validation
+- [ ] Prompt favoris
+- [ ] Pouvoir grouper les fichiers d'une tache d'inference au lieu d'appliquer le prompt par fichier seulement
+- [ ] Input texte direct
+- [ ] Gestion des prompts d'equipe
+- [ ] Templater les fichiers dans le prompt
+- [X] Bouton refresh en haut
